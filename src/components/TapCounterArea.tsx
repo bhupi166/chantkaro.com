@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CircularProgress } from './CircularProgress';
 import { ConfirmDialog } from './ConfirmDialog';
+import { Confetti } from './Confetti';
 import { playTapSound } from '@/lib/sound';
 import type { PracticeStats } from '@/lib/types';
 
@@ -75,23 +76,27 @@ export function TapCounterArea({
       </button>
 
       {showCompletion && (
-        <div
-          role="status"
-          className={`card-surface max-w-sm rounded-2xl p-4 text-center ${
-            prefersReducedMotion() ? '' : 'animate-[fadeIn_400ms_ease-out]'
-          }`}
-        >
-          <p className="font-medium">
-            You completed your selected target. Continue if it feels right.
-          </p>
-          <button
-            type="button"
-            onClick={() => setShowCompletion(false)}
-            className="mt-2 text-sm underline underline-offset-2"
+        <>
+          <Confetti />
+          <div
+            role="status"
+            className={`card-surface max-w-sm rounded-2xl p-4 text-center ${
+              prefersReducedMotion() ? '' : 'animate-[fadeIn_400ms_ease-out]'
+            }`}
           >
-            Dismiss
-          </button>
-        </div>
+            <p className="font-medium">
+              🎉 You achieved your target today! Continue chanting for your peace, if it feels
+              right.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowCompletion(false)}
+              className="mt-2 text-sm underline underline-offset-2"
+            >
+              Dismiss
+            </button>
+          </div>
+        </>
       )}
 
       <div className="grid w-full max-w-md grid-cols-3 gap-3 text-center">
