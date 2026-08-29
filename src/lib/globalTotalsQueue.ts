@@ -1,5 +1,5 @@
 import { loadQueueRecord, saveQueueRecord } from './offlineQueueDb';
-import type { PracticeCategory, QueuedIncrement } from './types';
+import type { PracticeCategory, PracticeMode, QueuedIncrement } from './types';
 
 /** Legacy key from before the IndexedDB migration — read once, then cleared. */
 const LEGACY_LOCALSTORAGE_KEY = 'chantkaro:queue:v1';
@@ -11,6 +11,10 @@ export interface QueueState {
   consecutiveFailures: number;
   /** Epoch ms — don't attempt another sync before this time. */
   nextRetryAt: number;
+  /** Counting method for whatever is currently accumulating in `pending` — a batch is never mixed-mode. */
+  pendingMode: PracticeMode | null;
+  /** Epoch ms of the first repetition since the last flush — used to compute a batch's elapsedMs. */
+  pendingStartedAt: number | null;
 }
 
 function emptyState(): QueueState {
@@ -19,6 +23,8 @@ function emptyState(): QueueState {
     queue: [],
     consecutiveFailures: 0,
     nextRetryAt: 0,
+    pendingMode: null,
+    pendingStartedAt: null,
   };
 }
 
@@ -39,6 +45,8 @@ function normalize(raw: unknown): QueueState {
     consecutiveFailures:
       typeof parsed.consecutiveFailures === 'number' ? parsed.consecutiveFailures : 0,
     nextRetryAt: typeof parsed.nextRetryAt === 'number' ? parsed.nextRetryAt : 0,
+    pendingMode: parsed.pendingMode === 'tap' || parsed.pendingMode === 'voice' ? parsed.pendingMode : null,
+    pendingStartedAt: typeof parsed.pendingStartedAt === 'number' ? parsed.pendingStartedAt : null,
   };
 }
 
@@ -70,26 +78,45 @@ export async function saveQueueState(state: QueueState): Promise<void> {
   await saveQueueRecord(state);
 }
 
-export function addPending(state: QueueState, category: PracticeCategory, amount = 1): QueueState {
+export function addPending(
+  state: QueueState,
+  category: PracticeCategory,
+  mode: PracticeMode,
+  amount = 1,
+  now = Date.now(),
+): QueueState {
   return {
     ...state,
     pending: { ...state.pending, [category]: state.pending[category] + amount },
+    pendingMode: mode,
+    pendingStartedAt: state.pendingStartedAt ?? now,
   };
 }
 
 /** Moves any non-zero pending counters into new, uniquely-keyed queue batches. */
-export function flushPendingToQueue(state: QueueState): QueueState {
+export function flushPendingToQueue(state: QueueState, now = Date.now()): QueueState {
+  const mode = state.pendingMode ?? 'tap';
+  const elapsedMs = state.pendingStartedAt != null ? Math.max(0, now - state.pendingStartedAt) : 0;
   const newEntries: QueuedIncrement[] = [];
   (['chant', 'affirmation'] as const).forEach((category) => {
     const amount = state.pending[category];
     if (amount > 0) {
-      newEntries.push({ idempotencyKey: uid(), category, amount, queuedAt: new Date().toISOString() });
+      newEntries.push({
+        idempotencyKey: uid(),
+        category,
+        amount,
+        queuedAt: new Date(now).toISOString(),
+        mode,
+        elapsedMs,
+      });
     }
   });
   if (newEntries.length === 0) return state;
   return {
     ...state,
     pending: { chant: 0, affirmation: 0 },
+    pendingMode: null,
+    pendingStartedAt: null,
     queue: [...state.queue, ...newEntries],
   };
 }

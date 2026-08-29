@@ -8,6 +8,8 @@ export interface SyncConfig {
   totalsRefreshSeconds: number;
   submissionsPaused: boolean;
   updatedAt: string;
+  /** Public Cloudflare Turnstile site key, or null if the server has none configured. */
+  turnstileSiteKey?: string | null;
 }
 
 /** Used whenever the server can't be reached — matches the server's own "normal" defaults. */
@@ -17,6 +19,7 @@ export const DEFAULT_SYNC_CONFIG: SyncConfig = {
   totalsRefreshSeconds: 45,
   submissionsPaused: false,
   updatedAt: '',
+  turnstileSiteKey: null,
 };
 
 const CONFIG_CACHE_KEY = 'chantkaro:syncConfig:v1';

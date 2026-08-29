@@ -44,8 +44,12 @@ export function TapCounterArea({
     wasCompleteRef.current = isComplete;
   }, [isComplete]);
 
-  function handleTapAreaClick() {
+  function handleTapAreaClick(e: React.MouseEvent<HTMLButtonElement>) {
     if (paused) return;
+    // "Do not count rapid programmatic clicks or synthetic events" — a
+    // script-dispatched click has isTrusted:false; only real user
+    // interaction advances the counter.
+    if (!e.nativeEvent.isTrusted) return;
     onTap();
     if (soundEnabled) playTapSound();
   }

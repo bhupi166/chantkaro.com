@@ -8,7 +8,7 @@ import {
   progressPercent,
   rolledOverForToday,
 } from '@/lib/practice';
-import type { PracticeSelection, RepetitionTarget } from '@/lib/types';
+import type { PracticeMode, PracticeSelection, RepetitionTarget } from '@/lib/types';
 
 export function usePracticeCounter(selection: PracticeSelection) {
   const { activeProfile, dispatch } = useAppData();
@@ -18,12 +18,12 @@ export function usePracticeCounter(selection: PracticeSelection) {
     [activeProfile.stats, key],
   );
 
-  const tap = useCallback(() => {
+  const tap = useCallback((mode: PracticeMode = 'tap') => {
     dispatch({ type: 'TAP', key, category: selection.category });
     // Anonymous contribution is fire-and-forget and independent of the
     // personal count above; it is never retracted by a later Undo, since a
     // sent increment cannot be traced back to this device.
-    globalTotalsClient.record(selection.category, activeProfile.contributeToGlobalTotals);
+    globalTotalsClient.record(selection.category, activeProfile.contributeToGlobalTotals, mode);
     if (activeProfile.vibrationEnabled && 'vibrate' in navigator) {
       try {
         navigator.vibrate?.(12);

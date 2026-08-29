@@ -15,28 +15,37 @@ import {
 import type { QueueState } from './globalTotalsQueue';
 
 function empty(): QueueState {
-  return { pending: { chant: 0, affirmation: 0 }, queue: [], consecutiveFailures: 0, nextRetryAt: 0 };
+  return {
+    pending: { chant: 0, affirmation: 0 },
+    queue: [],
+    consecutiveFailures: 0,
+    nextRetryAt: 0,
+    pendingMode: null,
+    pendingStartedAt: null,
+  };
 }
 
 describe('globalTotalsQueue — pure batching logic', () => {
   it('accumulates pending increments without creating a queue entry yet', () => {
     let state = empty();
-    state = addPending(state, 'chant', 1);
-    state = addPending(state, 'chant', 1);
+    state = addPending(state, 'chant', 'tap', 1);
+    state = addPending(state, 'chant', 'tap', 1);
     expect(totalPending(state)).toBe(2);
     expect(state.queue).toHaveLength(0);
   });
 
   it('flush moves pending counts into a single batched queue entry per category', () => {
     let state = empty();
-    state = addPending(state, 'chant', 5);
-    state = addPending(state, 'affirmation', 3);
+    state = addPending(state, 'chant', 'tap', 5);
+    state = addPending(state, 'affirmation', 'tap', 3);
     state = flushPendingToQueue(state);
     expect(state.queue).toHaveLength(2);
     expect(totalPending(state)).toBe(0);
     const chantEntry = state.queue.find((q) => q.category === 'chant')!;
     expect(chantEntry.amount).toBe(5);
     expect(chantEntry.idempotencyKey).toBeTruthy();
+    expect(chantEntry.mode).toBe('tap');
+    expect(typeof chantEntry.elapsedMs).toBe('number');
   });
 
   it('does not create empty batches when nothing is pending', () => {
@@ -45,21 +54,30 @@ describe('globalTotalsQueue — pure batching logic', () => {
   });
 
   it('each flush produces a unique idempotency key', () => {
-    let state = addPending(empty(), 'chant', 1);
+    let state = addPending(empty(), 'chant', 'tap', 1);
     state = flushPendingToQueue(state);
     const firstKey = state.queue[0].idempotencyKey;
-    state = addPending(state, 'chant', 1);
+    state = addPending(state, 'chant', 'tap', 1);
     state = flushPendingToQueue(state);
     const secondEntry = state.queue.find((q) => q.idempotencyKey !== firstKey);
     expect(secondEntry).toBeTruthy();
   });
 
   it('removeFromQueue drops only the matching entry', () => {
-    let state = addPending(empty(), 'chant', 1);
+    let state = addPending(empty(), 'chant', 'tap', 1);
     state = flushPendingToQueue(state);
     const key = state.queue[0].idempotencyKey;
     state = removeFromQueue(state, key);
     expect(state.queue).toHaveLength(0);
+  });
+
+  it('flushing under one mode does not need to track another — a fresh accumulation starts null', () => {
+    let state = addPending(empty(), 'chant', 'voice', 2);
+    expect(state.pendingMode).toBe('voice');
+    state = flushPendingToQueue(state);
+    expect(state.pendingMode).toBeNull();
+    expect(state.pendingStartedAt).toBeNull();
+    expect(state.queue[0].mode).toBe('voice');
   });
 });
 
@@ -110,7 +128,7 @@ describe('IndexedDB persistence', () => {
   });
 
   it('round-trips a saved state through IndexedDB', async () => {
-    let state = addPending(empty(), 'chant', 3);
+    let state = addPending(empty(), 'chant', 'tap', 3);
     state = flushPendingToQueue(state);
     await saveQueueState(state);
 

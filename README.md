@@ -109,14 +109,20 @@ npm run db:migrate:remote
 ```bash
 cd worker
 # set your real domain(s) in wrangler.toml [vars] ALLOWED_ORIGINS
-npx wrangler secret put ADMIN_TOKEN   # a long random value — never commit it, never put it in wrangler.toml
+npx wrangler secret put ADMIN_TOKEN            # a long random value
+npx wrangler secret put SESSION_SIGNING_KEY    # a long random value — signs session tokens, see §14.1
+npx wrangler secret put TURNSTILE_SECRET_KEY   # from your Cloudflare Turnstile widget, see §14.3
 npx wrangler deploy
 ```
 
-Note the deployed Worker URL (e.g. `https://chantkaro-api.<subdomain>.workers.dev`). `ADMIN_TOKEN`
-gates the two admin-only endpoints (`GET /api/admin/usage`, `PATCH /api/admin/config` — see §13.4);
-generate it with something like `openssl rand -hex 32`, store it in a password manager, and rotate it
-with `wrangler secret put ADMIN_TOKEN` again if it's ever exposed.
+Never put any of these three values in `wrangler.toml`, `.dev.vars`, or any frontend code. Note the
+deployed Worker URL (e.g. `https://chantkaro-api.<subdomain>.workers.dev`). `ADMIN_TOKEN` gates the
+admin-only endpoints (`GET /api/admin/usage`, `PATCH /api/admin/config`, `GET`/`PATCH
+/api/admin/security-config` — see §13.4, §14.4); generate it with something like `openssl rand -hex 32`,
+store it in a password manager, and rotate it with `wrangler secret put ADMIN_TOKEN` again if it's ever
+exposed. `TURNSTILE_SECRET_KEY` is paired with the public `TURNSTILE_SITE_KEY` already set in
+`wrangler.toml` — create the widget once via `npx wrangler turnstile widget create "<name>" --domain
+<your-domain> --mode managed` and use the `secret` it returns.
 
 ### 6.3 Frontend (Cloudflare Pages)
 
@@ -452,3 +458,84 @@ indefinitely; the offline contribution queue lives in IndexedDB
 profile settings) remain in LocalStorage. Both storage layers degrade gracefully on quota errors
 (operations become safe no-ops rather than throwing), and Settings already exposes export/clear of
 all local data.
+
+## 14. Security and abuse protection (global totals)
+
+The client's own tap/repetition count is never trusted as-is by the server. Every batch that reaches
+`POST /api/increment` is independently validated for who's sending it, how fast, and in what pattern,
+before it is ever added to the public totals.
+
+### 14.1 Session tokens
+
+A genuine practice session calls `POST /api/session/start` once (`src/lib/sessionClient.ts`), sending
+only a random, non-identifying `deviceId` (generated once via `crypto.randomUUID()` and cached in
+LocalStorage — `src/lib/deviceId.ts`; never combined with personal data). The Worker
+(`worker/src/session.ts`) creates a `sessions` row and returns a short-lived, HMAC-SHA256-signed token
+(`SESSION_SIGNING_KEY` secret, default 6-hour TTL, admin-configurable — §14.4) — no external JWT
+library, just Web Crypto. Every `POST /api/increment` must carry this token as
+`Authorization: Bearer <token>` (or, only for the best-effort `sendBeacon` unload path, which cannot
+set custom headers, a `?token=` query parameter — see `extractBearerToken()`); a missing, forged,
+tampered or expired token is rejected with `401` before any other check runs. Personal, on-device
+counting never needs a session token at all — only the optional contribution to the global total does.
+
+### 14.2 Rate limits and speed/pattern detection
+
+Beyond the per-IP-hash rate limit already used for cost control (§13), `/api/increment` also rate-limits
+per session id and per device hash (`worker/src/rateLimit.ts`, generalized to any scope string) —
+tighter ceilings than the shared IP limit, so one script cycling through fresh sessions from the same
+device (or the same IP hosting many devices) still gets caught.
+
+Each batch also carries `elapsedMs` (wall-clock time its repetitions were spread over) and `mode`
+(`tap`/`voice`). `worker/src/security.ts` → `evaluateBatch()` computes an implied rate
+(`amount / elapsedMs`) against server-configured ceilings — separately for Tap Mode (default 8/s) and
+Voice Mode (default 2/s, since speaking a phrase inherently takes longer than tapping) — and flags
+batches under 3 repetitions as too small a sample to judge a rate from at all. It also tracks
+consecutive near-identical inter-batch intervals (within 20ms, 3 in a row by default) as a robotic
+timing pattern. A single occasional anomaly is quietly rejected (`422`) — never applied to the total,
+never retried — while cumulative suspicion crossing a threshold escalates to an interactive challenge
+instead (§14.3), which is what makes this "progressive" rather than a silent, permanent block.
+
+On the client, `TapCounterArea.tsx` also ignores any click whose native event is not
+`isTrusted` — a script calling `.dispatchEvent()` or `.click()` produces an untrusted event in every
+browser, so this stops trivial programmatic clicking at the source (real browser automation that
+drives genuine input, as in the Playwright e2e suite, is indistinguishable from a real user and is a
+known, accepted limit of any `isTrusted` check — the server-side speed/pattern/session checks are the
+actual backstop). Voice Mode only ever counts phrases the Web Speech API itself recognized
+(`useSpeechRecognition` → `onMatches`) — there is no code path for a client-supplied arbitrary total.
+
+### 14.3 Progressive verification (Cloudflare Turnstile)
+
+Turnstile — not the paid Bot Management product — is free and shown to nobody by default. Only once a
+session's suspicion score crosses the configured threshold does `/api/increment` respond `428` with
+`{ challengeRequired: true, turnstileSiteKey }`; the client (`TurnstileChallengeHost.tsx`) then lazily
+loads the Turnstile script (never on the normal path) and shows a small modal. The resulting token is
+sent back with the same batch; the Worker verifies it against Cloudflare's `siteverify` API
+(`worker/src/turnstile.ts`, `TURNSTILE_SECRET_KEY` secret) before resetting the session's suspicion
+score and applying the batch. A failed or abandoned challenge just means that batch is dropped and the
+next sync cycle tries again — personal counting is completely unaffected either way.
+
+### 14.4 Admin kill switch and tunable thresholds
+
+`PATCH /api/admin/security-config` (Bearer `ADMIN_TOKEN`, same pattern as §13's `/api/admin/config`)
+lets an administrator tune `maxTapRatePerSecond`, `maxVoiceRatePerSecond`, `sessionTtlSeconds` and
+`challengeSuspicionThreshold` at runtime, with no redeploy. It also carries `abuseLockdown` — a
+dedicated kill switch that, together with the existing cost-driven `submissionsPaused` flag, feeds into
+the one public `submissionsPaused` boolean the client already knows how to handle (§13.5): personal
+counting and Tap/Voice Mode keep working fully, existing batches stay safely queued, and the same
+required message is shown. Flipping it back off resumes normal syncing with no data loss. None of these
+threshold values, nor `ADMIN_TOKEN`/`SESSION_SIGNING_KEY`/`TURNSTILE_SECRET_KEY`, are ever exposed on
+any public endpoint — only the Turnstile *site* key (`TURNSTILE_SITE_KEY`), which is meant to be public.
+
+`GET /api/admin/usage` (§13.4) also reports aggregate abuse counters — `challengesIssued`,
+`challengesPassed`, `batchesRejectedSpeed`, `batchesRejectedPattern`, `batchesRejectedAuth` — enough to
+see abuse trends at a glance without ever storing a per-user history of what was rejected.
+
+### 14.5 What's stored, and for how long
+
+`sessions` rows (`worker/migrations/0003_security.sql`) hold nothing but a random session id, a
+short-lived hash of IP and device signal, expiry, and small integer suspicion/pattern counters — pruned
+automatically once expired by the same hourly `scheduled()` job that prunes idempotency keys and rate
+limits (§7, §13.7). `security_config` is a single admin-tunable settings row plus a handful of
+aggregate counters. No voice audio, transcript, chant text, or personal identifier is ever recorded,
+uploaded or transmitted anywhere in this security layer — Voice Mode's privacy guarantee (§7, §8) is
+completely unchanged by any of this.

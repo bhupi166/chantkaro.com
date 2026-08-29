@@ -6,17 +6,42 @@ import { PracticePage } from './PracticePage';
 import { AppDataProvider } from '@/state/AppDataContext';
 import { createDefaultAppData } from '@/lib/storage';
 import { STORAGE_KEY } from '@/lib/storage';
+import { createEmptyStats, practiceKey } from '@/lib/practice';
+import type { PracticeSelection } from '@/lib/types';
 
-function seedActivePractice() {
+const SELECTION: PracticeSelection = {
+  category: 'chant',
+  optionId: 'sanatan-om-namah-shivaya',
+  displayText: 'Om Namah Shivaya',
+};
+
+/**
+ * Seeds a starting session count directly in the persisted profile rather
+ * than via simulated clicks. jsdom cannot produce a real, browser-trusted
+ * click (`isTrusted` is hardcoded false on every jsdom-dispatched event,
+ * with no override available — see TapCounterArea.tsx `handleTapAreaClick`,
+ * which deliberately ignores untrusted clicks so a script-dispatched click
+ * can never count as a repetition). That means "does tapping increment the
+ * count" can only be verified against a real browser — see
+ * e2e/core-flow.spec.ts, which does exactly that. These jsdom tests instead
+ * seed the precondition state directly and verify the surrounding logic
+ * (undo, reset, persistence, control buttons) that doesn't depend on the
+ * trust boundary.
+ */
+function seedActivePractice(sessionCount = 0) {
   const data = createDefaultAppData();
   const profile = data.profiles[0];
-  profile.lastActivePractice = {
-    category: 'chant',
-    optionId: 'sanatan-om-namah-shivaya',
-    displayText: 'Om Namah Shivaya',
-  };
+  profile.lastActivePractice = SELECTION;
   profile.lastMode = 'tap';
   profile.hasSeenContributionNotice = true;
+  if (sessionCount > 0) {
+    profile.stats[practiceKey(SELECTION)] = {
+      ...createEmptyStats(),
+      sessionCount,
+      todayCount: sessionCount,
+      lifetimeCount: sessionCount,
+    };
+  }
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   return data;
 }
@@ -44,34 +69,21 @@ beforeEach(() => {
 });
 
 describe('PracticePage — Tap Mode counting', () => {
-  it('a valid tap increases the count by exactly one', async () => {
+  it('ignores a simulated (untrusted) click — real tapping is covered by e2e/core-flow.spec.ts', async () => {
     seedActivePractice();
     const user = userEvent.setup();
     renderPractice();
 
     expect(getSessionCount()).toBe(0);
     await user.click(getTapButton());
-    expect(getSessionCount()).toBe(1);
-  });
-
-  it('rapid intentional taps remain accurate', async () => {
-    seedActivePractice();
-    const user = userEvent.setup();
-    renderPractice();
-
-    const button = getTapButton();
-    for (let i = 0; i < 12; i++) {
-      await user.click(button);
-    }
-    expect(getSessionCount()).toBe(12);
+    expect(getSessionCount()).toBe(0);
   });
 
   it('control buttons never increment the counter', async () => {
-    seedActivePractice();
+    seedActivePractice(1);
     const user = userEvent.setup();
     renderPractice();
 
-    await user.click(getTapButton());
     expect(getSessionCount()).toBe(1);
 
     await user.click(screen.getByRole('button', { name: 'Pause' }));
@@ -87,28 +99,20 @@ describe('PracticePage — Tap Mode counting', () => {
   });
 
   it('undo removes exactly one repetition', async () => {
-    seedActivePractice();
+    seedActivePractice(3);
     const user = userEvent.setup();
     renderPractice();
 
-    const button = getTapButton();
-    await user.click(button);
-    await user.click(button);
-    await user.click(button);
     expect(getSessionCount()).toBe(3);
-
     await user.click(screen.getByRole('button', { name: 'Undo' }));
     expect(getSessionCount()).toBe(2);
   });
 
   it('reset requires confirmation before clearing the session count', async () => {
-    seedActivePractice();
+    seedActivePractice(2);
     const user = userEvent.setup();
     renderPractice();
 
-    const button = getTapButton();
-    await user.click(button);
-    await user.click(button);
     expect(getSessionCount()).toBe(2);
 
     await user.click(screen.getByRole('button', { name: 'Reset' }));
@@ -119,15 +123,9 @@ describe('PracticePage — Tap Mode counting', () => {
     expect(getSessionCount()).toBe(0);
   });
 
-  it('persists the session count across a full remount (simulated refresh)', async () => {
-    seedActivePractice();
-    const user = userEvent.setup();
+  it('persists the session count across a full remount (simulated refresh)', () => {
+    seedActivePractice(3);
     const { unmount } = renderPractice();
-
-    const button = getTapButton();
-    await user.click(button);
-    await user.click(button);
-    await user.click(button);
     expect(getSessionCount()).toBe(3);
 
     unmount();

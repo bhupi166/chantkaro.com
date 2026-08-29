@@ -103,6 +103,10 @@ export interface QueuedIncrement {
   category: PracticeCategory;
   amount: number;
   queuedAt: string;
+  /** Which counting method produced this batch — used server-side for a mode-appropriate speed check. */
+  mode: PracticeMode;
+  /** Wall-clock time (ms) the batch's repetitions were spread over, for the same server-side speed check. */
+  elapsedMs: number;
 }
 
 export interface GlobalTotals {

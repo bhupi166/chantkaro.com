@@ -185,7 +185,10 @@
     "reset": "Reset",
     "resetDialogTitle": "Reset this session?",
     "resetDialogDescription": "This clears your current session count back to zero. Your today and lifetime totals are not affected.",
-    "resetConfirmLabel": "Reset Session"
+    "resetConfirmLabel": "Reset Session",
+    "verificationTitle": "Quick verification",
+    "verificationBody": "To keep the global community total reliable, please complete this quick check. Your personal count keeps working either way.",
+    "verificationCancel": "Cancel"
   },
   "voice": {
     "betaLabel": "Voice Mode · Beta",

@@ -47,3 +47,38 @@ CREATE TABLE IF NOT EXISTS sync_config (
 
 INSERT OR IGNORE INTO sync_config (id, mode, batch_threshold, totals_refresh_seconds, submissions_paused, auto_managed)
 VALUES (1, 'normal', 100, 45, 0, 1);
+
+-- Session/abuse-protection infrastructure — see migrations/0003_security.sql
+-- for the authoritative version and src/session.ts + src/security.ts for
+-- how it's used.
+CREATE TABLE IF NOT EXISTS sessions (
+  session_id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  expires_at TEXT NOT NULL,
+  ip_hash TEXT NOT NULL,
+  device_hash TEXT NOT NULL,
+  suspicion_score INTEGER NOT NULL DEFAULT 0,
+  challenge_required INTEGER NOT NULL DEFAULT 0 CHECK (challenge_required IN (0, 1)),
+  last_batch_at TEXT,
+  last_interval_ms INTEGER,
+  pattern_streak INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions (expires_at);
+
+CREATE TABLE IF NOT EXISTS security_config (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  max_tap_rate_per_second REAL NOT NULL DEFAULT 8,
+  max_voice_rate_per_second REAL NOT NULL DEFAULT 2,
+  session_ttl_seconds INTEGER NOT NULL DEFAULT 21600,
+  challenge_suspicion_threshold INTEGER NOT NULL DEFAULT 5,
+  abuse_lockdown INTEGER NOT NULL DEFAULT 0 CHECK (abuse_lockdown IN (0, 1)),
+  challenges_issued INTEGER NOT NULL DEFAULT 0,
+  challenges_passed INTEGER NOT NULL DEFAULT 0,
+  batches_rejected_speed INTEGER NOT NULL DEFAULT 0,
+  batches_rejected_pattern INTEGER NOT NULL DEFAULT 0,
+  batches_rejected_auth INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+INSERT OR IGNORE INTO security_config (id) VALUES (1);

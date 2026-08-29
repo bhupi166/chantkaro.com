@@ -13,12 +13,34 @@ import {
   type SyncConfigPatch,
 } from './db';
 import { isSyncMode, nextAutoMode, MODE_PROFILES } from './syncConfig';
+import { extractBearerToken, signSession, verifySession } from './session';
+import {
+  createSession,
+  evaluateBatch,
+  getAbuseMetrics,
+  getSecurityConfig,
+  getSession,
+  hashSubject,
+  incrementAbuseMetric,
+  pruneExpiredSessions,
+  resolveChallenge,
+  updateSecurityConfig,
+  updateSessionTracking,
+  type SecurityConfigPatch,
+} from './security';
+import { verifyTurnstileToken } from './turnstile';
 
 export interface Env {
   DB: D1Database;
   ALLOWED_ORIGINS: string;
+  /** Public by design — Turnstile site keys are meant to be embedded in frontend code. */
+  TURNSTILE_SITE_KEY?: string;
   /** Set via `wrangler secret put ADMIN_TOKEN` — never in source control or the frontend. */
   ADMIN_TOKEN?: string;
+  /** Set via `wrangler secret put SESSION_SIGNING_KEY` — never in source control or the frontend. */
+  SESSION_SIGNING_KEY?: string;
+  /** Set via `wrangler secret put TURNSTILE_SECRET_KEY` — never in source control or the frontend. */
+  TURNSTILE_SECRET_KEY?: string;
 }
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -27,6 +49,12 @@ const SECURITY_HEADERS: Record<string, string> = {
   'X-Frame-Options': 'DENY',
   'Content-Security-Policy': "default-src 'none'",
 };
+
+const DEVICE_ID_PATTERN = /^[A-Za-z0-9-]{8,100}$/;
+/** Per-scope request ceilings for POST /api/increment — tighter than the shared per-IP limit. */
+const SESSION_RATE_LIMIT_MAX = 30;
+const DEVICE_RATE_LIMIT_MAX = 40;
+const SESSION_START_RATE_LIMIT_MAX = 10;
 
 function jsonResponse(
   body: unknown,
@@ -97,14 +125,18 @@ async function handleTotals(request: Request, env: Env, cors: Headers): Promise<
 
 async function handleConfig(request: Request, env: Env, cors: Headers): Promise<Response> {
   return withEdgeCache(request, 60, async () => {
-    const config = await getSyncConfig(env);
+    const [config, security] = await Promise.all([getSyncConfig(env), getSecurityConfig(env)]);
     return jsonResponse(
       {
         mode: config.mode,
         batchThreshold: config.batchThreshold,
         totalsRefreshSeconds: config.totalsRefreshSeconds,
-        submissionsPaused: config.submissionsPaused,
+        // Either a cost-driven pause or the administrator's abuse kill
+        // switch is enough to stop new submissions — the client only needs
+        // one boolean either way (see security.ts abuseLockdown).
+        submissionsPaused: config.submissionsPaused || security.abuseLockdown,
         updatedAt: config.updatedAt,
+        turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? null,
       },
       { status: 200 },
       cors,
@@ -112,10 +144,83 @@ async function handleConfig(request: Request, env: Env, cors: Headers): Promise<
   });
 }
 
+async function handleSessionStart(request: Request, env: Env, cors: Headers): Promise<Response> {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  const withinLimit = await checkAndIncrementRateLimit(
+    env,
+    `session-start:${ip}`,
+    SESSION_START_RATE_LIMIT_MAX,
+  );
+  if (!withinLimit) {
+    return jsonResponse({ error: 'Too many requests. Please slow down.' }, { status: 429 }, cors);
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Request body must be valid JSON.' }, { status: 400 }, cors);
+  }
+  const deviceId =
+    parsed !== null && typeof parsed === 'object' ? (parsed as Record<string, unknown>).deviceId : undefined;
+  if (typeof deviceId !== 'string' || !DEVICE_ID_PATTERN.test(deviceId)) {
+    return jsonResponse({ error: 'deviceId must be an 8-100 character id.' }, { status: 400 }, cors);
+  }
+
+  if (!env.SESSION_SIGNING_KEY) {
+    return jsonResponse({ error: 'Session service temporarily unavailable.' }, { status: 503 }, cors);
+  }
+
+  const security = await getSecurityConfig(env);
+  const [ipHash, deviceHash] = await Promise.all([hashSubject(ip), hashSubject(deviceId)]);
+  const sessionId = crypto.randomUUID();
+  const expiresAt = await createSession(env, sessionId, ipHash, deviceHash, security.sessionTtlSeconds);
+  const iat = Math.floor(Date.now() / 1000);
+  const token = await signSession(env, {
+    sid: sessionId,
+    iat,
+    exp: iat + security.sessionTtlSeconds,
+  });
+  if (!token) {
+    return jsonResponse({ error: 'Session service temporarily unavailable.' }, { status: 503 }, cors);
+  }
+
+  return jsonResponse(
+    { token, expiresAt, turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? null },
+    { status: 200 },
+    cors,
+    { 'Cache-Control': 'no-store' },
+  );
+}
+
 async function handleIncrement(request: Request, env: Env, cors: Headers): Promise<Response> {
   const contentLength = request.headers.get('content-length');
   if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
     return jsonResponse({ error: 'Request body too large.' }, { status: 413 }, cors);
+  }
+
+  // Never trust a repetition count with no server-issued session behind it.
+  const token = extractBearerToken(request);
+  if (!token) {
+    return jsonResponse({ error: 'Session token required.' }, { status: 401 }, cors);
+  }
+  const payload = await verifySession(env, token);
+  if (!payload) {
+    return jsonResponse({ error: 'Invalid or expired session.' }, { status: 401 }, cors);
+  }
+  const session = await getSession(env, payload.sid);
+  if (!session) {
+    return jsonResponse({ error: 'Session not found or expired.' }, { status: 401 }, cors);
+  }
+
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  const [ipOk, sessionOk, deviceOk] = await Promise.all([
+    checkAndIncrementRateLimit(env, ip),
+    checkAndIncrementRateLimit(env, `session:${payload.sid}`, SESSION_RATE_LIMIT_MAX),
+    checkAndIncrementRateLimit(env, `device:${session.deviceHash}`, DEVICE_RATE_LIMIT_MAX),
+  ]);
+  if (!ipOk || !sessionOk || !deviceOk) {
+    return jsonResponse({ error: 'Too many requests. Please slow down.' }, { status: 429 }, cors);
   }
 
   const rawText = await request.text();
@@ -134,14 +239,7 @@ async function handleIncrement(request: Request, env: Env, cors: Headers): Promi
   if (!validation.ok) {
     return jsonResponse({ error: validation.error }, { status: 400 }, cors);
   }
-
-  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-  const withinLimit = await checkAndIncrementRateLimit(env, ip);
-  if (!withinLimit) {
-    return jsonResponse({ error: 'Too many requests. Please slow down.' }, { status: 429 }, cors);
-  }
-
-  const { category, amount, idempotencyKey } = validation.value;
+  const { category, amount, idempotencyKey, elapsedMs, mode, turnstileToken } = validation.value;
 
   const existing = await env.DB.prepare(
     'SELECT idempotency_key FROM idempotency_keys WHERE idempotency_key = ?1',
@@ -150,6 +248,60 @@ async function handleIncrement(request: Request, env: Env, cors: Headers): Promi
     .first();
   if (existing) {
     return jsonResponse({ error: 'This batch was already applied.' }, { status: 409 }, cors);
+  }
+
+  const security = await getSecurityConfig(env);
+  const now = new Date();
+
+  if (session.challengeRequired) {
+    if (!turnstileToken) {
+      return jsonResponse(
+        { error: 'Verification required.', challengeRequired: true, turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? null },
+        { status: 428 },
+        cors,
+      );
+    }
+    const passed = await verifyTurnstileToken(env, turnstileToken, ip);
+    if (!passed) {
+      await incrementAbuseMetric(env, 'batches_rejected_auth');
+      return jsonResponse({ error: 'Verification failed.' }, { status: 403 }, cors);
+    }
+    await incrementAbuseMetric(env, 'challenges_passed');
+    await resolveChallenge(env, payload.sid);
+    // A solved challenge is sufficient proof of legitimacy for this batch —
+    // proceed straight to applying it below, without also re-running the
+    // speed/pattern heuristics that flagged the session in the first place.
+  } else {
+    const evaluation = evaluateBatch({ mode, amount, elapsedMs, now, session, config: security });
+    await updateSessionTracking(env, payload.sid, {
+      suspicionScore: session.suspicionScore + evaluation.suspicionDelta,
+      challengeRequired: evaluation.verdict.verdict === 'challenge',
+      patternStreak: evaluation.patternStreak,
+      lastBatchAtIso: now.toISOString(),
+      lastIntervalMs: evaluation.intervalMs,
+    });
+
+    if (evaluation.verdict.verdict === 'reject') {
+      await incrementAbuseMetric(
+        env,
+        evaluation.verdict.reason === 'speed' ? 'batches_rejected_speed' : 'batches_rejected_pattern',
+      );
+      // Rejected or quarantined: never applied to the global total. The
+      // caller's own local/personal count is untouched by this response.
+      return jsonResponse(
+        { error: 'Batch rejected: implausible activity detected.' },
+        { status: 422 },
+        cors,
+      );
+    }
+    if (evaluation.verdict.verdict === 'challenge') {
+      await incrementAbuseMetric(env, 'challenges_issued');
+      return jsonResponse(
+        { error: 'Verification required.', challengeRequired: true, turnstileSiteKey: env.TURNSTILE_SITE_KEY ?? null },
+        { status: 428 },
+        cors,
+      );
+    }
   }
 
   // Record the idempotency key and bump the total atomically so a retried
@@ -171,8 +323,8 @@ async function handleAdminUsage(request: Request, env: Env, cors: Headers): Prom
   if (!isAuthorizedAdmin(request, env.ADMIN_TOKEN)) {
     return jsonResponse({ error: 'Unauthorized.' }, { status: 401 }, cors);
   }
-  const snapshot = await getUsageSnapshot(env);
-  return jsonResponse(snapshot, { status: 200 }, cors, { 'Cache-Control': 'no-store' });
+  const [snapshot, abuse] = await Promise.all([getUsageSnapshot(env), getAbuseMetrics(env)]);
+  return jsonResponse({ ...snapshot, abuse }, { status: 200 }, cors, { 'Cache-Control': 'no-store' });
 }
 
 async function handleAdminConfigPatch(request: Request, env: Env, cors: Headers): Promise<Response> {
@@ -230,6 +382,61 @@ async function handleAdminConfigPatch(request: Request, env: Env, cors: Headers)
   return jsonResponse(updated, { status: 200 }, cors, { 'Cache-Control': 'no-store' });
 }
 
+async function handleAdminSecurityConfigGet(request: Request, env: Env, cors: Headers): Promise<Response> {
+  if (!isAuthorizedAdmin(request, env.ADMIN_TOKEN)) {
+    return jsonResponse({ error: 'Unauthorized.' }, { status: 401 }, cors);
+  }
+  const config = await getSecurityConfig(env);
+  return jsonResponse(config, { status: 200 }, cors, { 'Cache-Control': 'no-store' });
+}
+
+async function handleAdminSecurityConfigPatch(request: Request, env: Env, cors: Headers): Promise<Response> {
+  if (!isAuthorizedAdmin(request, env.ADMIN_TOKEN)) {
+    return jsonResponse({ error: 'Unauthorized.' }, { status: 401 }, cors);
+  }
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Request body must be valid JSON.' }, { status: 400 }, cors);
+  }
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+    return jsonResponse({ error: 'Request body must be a JSON object.' }, { status: 400 }, cors);
+  }
+  const raw = body as Record<string, unknown>;
+  const patch: SecurityConfigPatch = {};
+
+  const numberField = (key: keyof SecurityConfigPatch, min: number, max: number): string | null => {
+    if (!(key in raw)) return null;
+    const n = raw[key];
+    if (typeof n !== 'number' || !Number.isFinite(n) || n < min || n > max) {
+      return `${key} must be a number between ${min} and ${max}.`;
+    }
+    (patch as Record<string, unknown>)[key] = n;
+    return null;
+  };
+
+  for (const err of [
+    numberField('maxTapRatePerSecond', 0.1, 100),
+    numberField('maxVoiceRatePerSecond', 0.1, 100),
+    numberField('sessionTtlSeconds', 300, 86_400),
+    numberField('challengeSuspicionThreshold', 1, 100),
+  ]) {
+    if (err) return jsonResponse({ error: err }, { status: 400 }, cors);
+  }
+  if ('abuseLockdown' in raw) {
+    if (typeof raw.abuseLockdown !== 'boolean') {
+      return jsonResponse({ error: 'abuseLockdown must be a boolean.' }, { status: 400 }, cors);
+    }
+    patch.abuseLockdown = raw.abuseLockdown;
+  }
+
+  const updated = await updateSecurityConfig(env, patch);
+  // abuseLockdown feeds into the public /api/config submissionsPaused flag.
+  await caches.default.delete(new Request(new URL('/api/config', request.url)));
+  return jsonResponse(updated, { status: 200 }, cors, { 'Cache-Control': 'no-store' });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -262,6 +469,14 @@ export default {
       }
     }
 
+    if (url.pathname === '/api/session/start' && request.method === 'POST') {
+      try {
+        return await handleSessionStart(request, env, cors);
+      } catch {
+        return jsonResponse({ error: 'Could not start session.' }, { status: 500 }, cors);
+      }
+    }
+
     if (url.pathname === '/api/increment' && request.method === 'POST') {
       try {
         return await handleIncrement(request, env, cors);
@@ -286,6 +501,22 @@ export default {
       }
     }
 
+    if (url.pathname === '/api/admin/security-config' && request.method === 'GET') {
+      try {
+        return await handleAdminSecurityConfigGet(request, env, cors);
+      } catch {
+        return jsonResponse({ error: 'Could not load security config.' }, { status: 500 }, cors);
+      }
+    }
+
+    if (url.pathname === '/api/admin/security-config' && request.method === 'PATCH') {
+      try {
+        return await handleAdminSecurityConfigPatch(request, env, cors);
+      } catch {
+        return jsonResponse({ error: 'Could not update security config.' }, { status: 500 }, cors);
+      }
+    }
+
     return jsonResponse({ error: 'Not found.' }, { status: 404 }, cors);
   },
 
@@ -295,6 +526,7 @@ export default {
     if (deletedIdempotencyRows > 0) {
       console.log(`Pruned ${deletedIdempotencyRows} expired idempotency record(s).`);
     }
+    await pruneExpiredSessions(env);
 
     await checkStorageThresholds(env);
 

@@ -7,6 +7,7 @@ import { useFullscreen } from '@/hooks/useFullscreen';
 import { globalTotalsClient } from '@/lib/globalTotalsClient';
 import { TapCounterArea } from '@/components/TapCounterArea';
 import { VoiceCounterArea } from '@/components/VoiceCounterArea';
+import { TurnstileChallengeHost } from '@/components/TurnstileChallengeHost';
 import type { PracticeMode } from '@/lib/types';
 
 export function PracticePage() {
@@ -52,7 +53,7 @@ export function PracticePage() {
 
   const handleVoiceMatches = useCallback(
     (count: number) => {
-      for (let i = 0; i < count; i++) counter.tap();
+      for (let i = 0; i < count; i++) counter.tap('voice');
     },
     [counter],
   );
@@ -63,6 +64,7 @@ export function PracticePage() {
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-8 bg-[color:var(--bg)] py-4">
+      <TurnstileChallengeHost />
       {!activeProfile.hasSeenContributionNotice && activeProfile.contributeToGlobalTotals && (
         <div role="status" className="card-surface w-full max-w-xl rounded-2xl p-4 text-sm">
           <p>{t('practice.contributionNotice')}</p>
@@ -110,7 +112,7 @@ export function PracticePage() {
           percent={counter.percent}
           isComplete={counter.isComplete}
           soundEnabled={activeProfile.soundEnabled}
-          onTap={counter.tap}
+          onTap={() => counter.tap('tap')}
           onUndo={counter.undo}
           onResetConfirmed={counter.resetSession}
         />

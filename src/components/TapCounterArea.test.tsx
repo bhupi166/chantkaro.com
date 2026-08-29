@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TapCounterArea } from './TapCounterArea';
 import { createEmptyStats } from '@/lib/practice';
 
@@ -15,6 +15,21 @@ function baseProps(overrides: Partial<Parameters<typeof TapCounterArea>[0]> = {}
     ...overrides,
   };
 }
+
+describe('TapCounterArea — trusted-interaction guard', () => {
+  it('ignores a synthetic (non-browser-trusted) click and never calls onTap', () => {
+    const props = baseProps();
+    render(<TapCounterArea {...props} />);
+
+    const tapButton = screen.getByRole('button', { name: /tap to count/i });
+    // jsdom's fireEvent/dispatchEvent always produces isTrusted:false —
+    // exactly the class of event a script could dispatch on its own —
+    // which handleTapAreaClick in TapCounterArea.tsx deliberately ignores.
+    fireEvent.click(tapButton);
+
+    expect(props.onTap).not.toHaveBeenCalled();
+  });
+});
 
 describe('TapCounterArea — target completion celebration', () => {
   it('shows no celebration message before the target is reached', () => {

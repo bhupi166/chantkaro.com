@@ -8,6 +8,9 @@ compatibility_flags = ["nodejs_compat"]
 # your real domain(s) before going to production.
 [vars]
 ALLOWED_ORIGINS = "https://chantkaro.com,https://www.chantkaro.com"
+# Turnstile site keys are public by design (meant to be embedded in
+# frontend code) — safe to keep here, unlike the matching secret key.
+TURNSTILE_SITE_KEY = "0x4AAAAAAEhGO5vgQwh0MTXP"
 
 [[d1_databases]]
 binding = "DB"
@@ -35,6 +38,9 @@ crons = ["0 * * * *"]
 # [limits]
 # cpu_ms = 50
 #
-# ADMIN_TOKEN must be set as a secret (works on any plan):
+# ADMIN_TOKEN, SESSION_SIGNING_KEY and TURNSTILE_SECRET_KEY must all be set
+# as secrets (works on any plan):
 #   wrangler secret put ADMIN_TOKEN
-# Never put its value in this file, .dev.vars, or any frontend code.
+#   wrangler secret put SESSION_SIGNING_KEY
+#   wrangler secret put TURNSTILE_SECRET_KEY
+# Never put their values in this file, .dev.vars, or any frontend code.

@@ -19,6 +19,31 @@ export function createFakeD1() {
     auto_managed: 1,
     updated_at: new Date(0).toISOString(),
   };
+  const sessions = new Map<
+    string,
+    {
+      expires_at: string;
+      ip_hash: string;
+      device_hash: string;
+      suspicion_score: number;
+      challenge_required: number;
+      last_batch_at: string | null;
+      last_interval_ms: number | null;
+      pattern_streak: number;
+    }
+  >();
+  let securityConfig = {
+    max_tap_rate_per_second: 8,
+    max_voice_rate_per_second: 2,
+    session_ttl_seconds: 21_600,
+    challenge_suspicion_threshold: 5,
+    abuse_lockdown: 0,
+    challenges_issued: 0,
+    challenges_passed: 0,
+    batches_rejected_speed: 0,
+    batches_rejected_pattern: 0,
+    batches_rejected_auth: 0,
+  };
 
   function statement(sql: string, boundArgs: unknown[] = []) {
     return {
@@ -51,6 +76,17 @@ export function createFakeD1() {
         }
         if (sql.includes('SELECT COUNT(*) AS n FROM rate_limits')) {
           return { n: rateLimits.size } as T;
+        }
+        if (sql.includes('SELECT session_id') && sql.includes('FROM sessions')) {
+          const id = boundArgs[0] as string;
+          const row = sessions.get(id);
+          return (row ? { session_id: id, ...row } : null) as T | null;
+        }
+        if (sql.includes('SELECT max_tap_rate_per_second') && sql.includes('security_config')) {
+          return { ...securityConfig } as T;
+        }
+        if (sql.includes('SELECT challenges_issued') && sql.includes('security_config')) {
+          return { ...securityConfig } as T;
         }
         return null;
       },
@@ -113,6 +149,62 @@ export function createFakeD1() {
         }
       }
       lastDeleteCount = removed;
+    } else if (sql.includes('INSERT INTO sessions')) {
+      const [sessionId, expiresAt, ipHash, deviceHash] = args as [string, string, string, string];
+      sessions.set(sessionId, {
+        expires_at: expiresAt,
+        ip_hash: ipHash,
+        device_hash: deviceHash,
+        suspicion_score: 0,
+        challenge_required: 0,
+        last_batch_at: null,
+        last_interval_ms: null,
+        pattern_streak: 0,
+      });
+    } else if (sql.includes('UPDATE sessions') && sql.includes('suspicion_score = ?1')) {
+      const [suspicionScore, challengeRequired, patternStreak, lastBatchAt, lastIntervalMs, sessionId] =
+        args as [number, number, number, string, number | null, string];
+      const row = sessions.get(sessionId);
+      if (row) {
+        sessions.set(sessionId, {
+          ...row,
+          suspicion_score: suspicionScore,
+          challenge_required: challengeRequired,
+          pattern_streak: patternStreak,
+          last_batch_at: lastBatchAt,
+          last_interval_ms: lastIntervalMs,
+        });
+      }
+    } else if (sql.includes('UPDATE sessions SET challenge_required = 0')) {
+      const [sessionId] = args as [string];
+      const row = sessions.get(sessionId);
+      if (row) {
+        sessions.set(sessionId, { ...row, challenge_required: 0, suspicion_score: 0, pattern_streak: 0 });
+      }
+    } else if (sql.includes('DELETE FROM sessions WHERE expires_at <')) {
+      const cutoff = args[0] as string;
+      let removed = 0;
+      for (const [key, row] of sessions) {
+        if (row.expires_at < cutoff) {
+          sessions.delete(key);
+          removed++;
+        }
+      }
+      lastDeleteCount = removed;
+    } else if (sql.includes('UPDATE security_config') && sql.includes('max_tap_rate_per_second = ?1')) {
+      const [maxTap, maxVoice, ttl, threshold, lockdown] = args as [number, number, number, number, number];
+      securityConfig = {
+        ...securityConfig,
+        max_tap_rate_per_second: maxTap,
+        max_voice_rate_per_second: maxVoice,
+        session_ttl_seconds: ttl,
+        challenge_suspicion_threshold: threshold,
+        abuse_lockdown: lockdown,
+      };
+    } else if (/UPDATE security_config SET (\w+) = \1 \+ 1/.test(sql)) {
+      const match = sql.match(/UPDATE security_config SET (\w+) = \1 \+ 1/);
+      const column = match?.[1] as keyof typeof securityConfig | undefined;
+      if (column) securityConfig = { ...securityConfig, [column]: (securityConfig[column] as number) + 1 };
     } else {
       lastDeleteCount = 0;
     }
@@ -122,9 +214,27 @@ export function createFakeD1() {
     totals,
     idempotencyKeys,
     rateLimits,
+    sessions,
     getSyncConfigRaw: () => syncConfig,
     setSyncConfigRaw: (patch: Partial<typeof syncConfig>) => {
       syncConfig = { ...syncConfig, ...patch };
+    },
+    getSecurityConfigRaw: () => securityConfig,
+    setSecurityConfigRaw: (patch: Partial<typeof securityConfig>) => {
+      securityConfig = { ...securityConfig, ...patch };
+    },
+    setSessionRaw: (id: string, patch: Record<string, unknown>) => {
+      const existing = sessions.get(id) ?? {
+        expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+        ip_hash: 'ip-hash',
+        device_hash: 'device-hash',
+        suspicion_score: 0,
+        challenge_required: 0,
+        last_batch_at: null,
+        last_interval_ms: null,
+        pattern_streak: 0,
+      };
+      sessions.set(id, { ...existing, ...(patch as object) });
     },
     prepare(sql: string) {
       return statement(sql);
