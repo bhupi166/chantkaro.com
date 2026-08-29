@@ -95,6 +95,22 @@ export const CHANTS: PracticeOption[] = [
     script: 'ॐ शान्तिः',
     scriptLang: 'hi',
   },
+  {
+    id: 'sanatan-jai-sai-ram',
+    category: 'chant',
+    tradition: 'sanatan',
+    title: 'Jai Sai Ram',
+    script: 'जय साईं राम',
+    scriptLang: 'hi',
+  },
+  {
+    id: 'sanatan-om-sai-ram',
+    category: 'chant',
+    tradition: 'sanatan',
+    title: 'Om Sai Ram',
+    script: 'ॐ साईं राम',
+    scriptLang: 'hi',
+  },
 
   // ---- Sikh Simran ----
   {
