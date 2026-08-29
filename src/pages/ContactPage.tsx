@@ -20,33 +20,8 @@ export function ContactPage() {
             </a>
           </dd>
         </div>
-        <div>
-          <dt className="text-sm font-medium text-[color:var(--fg-muted)]">
-            {t('contact.privacyLabel')}
-          </dt>
-          <dd>
-            <a
-              className="underline"
-              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Privacy%20Inquiry"
-            >
-              bhupi166@gmail.com
-            </a>
-          </dd>
-        </div>
-        <div>
-          <dt className="text-sm font-medium text-[color:var(--fg-muted)]">
-            {t('contact.contentLabel')}
-          </dt>
-          <dd>
-            <a
-              className="underline"
-              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Content%20Correction"
-            >
-              bhupi166@gmail.com
-            </a>
-          </dd>
-        </div>
       </dl>
+      <p className="text-sm text-[color:var(--fg-muted)]">{t('contact.subjectNote')}</p>
     </article>
   );
 }

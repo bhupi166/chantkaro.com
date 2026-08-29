@@ -1,7 +1,7 @@
 {
   "common": {
     "brandName": "Chant Karo",
-    "brandTagline": "Har naam. Har aastha. Dil se chant karo.",
+    "brandTagline": "Har naam. Har aastha. Dil se japo.",
     "logoAlt": "Chant Karo logo",
     "confirm": "Confirm",
     "cancel": "Cancel",
@@ -33,14 +33,14 @@
     "banner": "You are offline. Tap Mode keeps working — progress will sync when you are back online."
   },
   "home": {
-    "taglineSupport": "Every faith. Every chant. One peaceful space.",
-    "intro": "Choose any sacred name, mantra, prayer, simran, dhikr or positive affirmation. Repeat privately, count effortlessly and build a peaceful daily practice—without registration.",
+    "taglineSupport": "Every faith. Every prayer. One peaceful space.",
+    "intro": "Choose any sacred name, mantra, prayer, simran, dhikr or positive affirmation. Repeat privately, count effortlessly and create a peaceful daily practice—without registration.",
     "startPractice": "Start Your Practice",
     "continueLastPractice": "Continue Last Practice",
     "tapModeTitle": "Tap Mode",
     "tapModeDescription": "Tap anywhere on a large, calm counter to record each repetition. Works fully offline, with optional gentle vibration.",
     "voiceModeTitle": "Voice Mode (Beta)",
-    "voiceModeDescription": "Your browser listens for your selected phrase and counts it automatically. Chant Karo never records, stores or sends your voice.",
+    "voiceModeDescription": "Your browser listens for your selected phrase and counts each repetition automatically. Your voice is never recorded, stored or shared.",
     "privacyHeading": "Your privacy, in short",
     "privacyBullet1": "No login, registration or personal details, ever.",
     "privacyBullet2": "Your words, custom chants and personal history stay on this device.",
@@ -52,9 +52,9 @@
     "nearRealTime": "Totals update near real-time, not instantly.",
     "unavailable": "Global totals are temporarily unavailable. Your personal practice keeps working normally.",
     "syncPausedMessage": "Your personal count is safe on this device. Global community synchronization is temporarily delayed to maintain reliable and sustainable service.",
-    "chantsAndPrayers": "Chants & Prayers",
+    "chantsAndPrayers": "Sacred Names & Prayers",
     "positiveAffirmations": "Positive Affirmations",
-    "totalPositiveRepetitions": "Total Positive Repetitions"
+    "totalPositiveRepetitions": "Total Repetitions"
   },
   "choose": {
     "heading": "What would you like to practise today?",
@@ -208,8 +208,9 @@
     "subtitle": "Your practice is personal. Continue whenever it feels right.",
     "today": "Today",
     "last7Days": "Last 7 Days",
-    "lifetimeChants": "Lifetime Chants & Prayers",
-    "lifetimeAffirmations": "Lifetime Affirmations",
+    "lifetimeChants": "Personal Sacred Repetitions",
+    "lifetimeAffirmations": "Personal Affirmations",
+    "yourTotal": "Your Total",
     "dailyConsistency": "Daily consistency",
     "last30Days": "Last 30 days",
     "dayRepetitions": "{{date}}: {{count}} repetitions",
@@ -308,8 +309,7 @@
     "title": "Contact",
     "intro": "We welcome questions, corrections to suggested phrases, and accessibility feedback.",
     "generalLabel": "General",
-    "privacyLabel": "Privacy",
-    "contentLabel": "Content corrections"
+    "subjectNote": "While you are sending the email, please add the subject \"Chant Karo\"."
   },
   "benefits": {
     "title": "Benefits of Chanting & Affirmations",

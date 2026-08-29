@@ -59,11 +59,12 @@ export function StatsPage() {
         <p className="mt-1 text-[color:var(--fg-muted)]">{t('stats.subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <StatCard label={t('stats.today')} formatted={count(today)} />
         <StatCard label={t('stats.last7Days')} formatted={count(sevenDay)} />
         <StatCard label={t('stats.lifetimeChants')} formatted={count(lifetime.chant)} />
         <StatCard label={t('stats.lifetimeAffirmations')} formatted={count(lifetime.affirmation)} />
+        <StatCard label={t('stats.yourTotal')} formatted={count(lifetime.chant + lifetime.affirmation)} />
       </div>
 
       <section className="card-surface rounded-2xl p-6">

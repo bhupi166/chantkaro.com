@@ -1,7 +1,7 @@
 {
   "common": {
     "brandName": "Chant Karo",
-    "brandTagline": "Har naam. Har aastha. Dil se chant karo.",
+    "brandTagline": "Har naam. Har aastha. Dil se japo.",
     "logoAlt": "Chant Karo ਲੋਗੋ",
     "confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
     "cancel": "ਰੱਦ ਕਰੋ",
@@ -210,6 +210,7 @@
     "last7Days": "ਪਿਛਲੇ 7 ਦਿਨ",
     "lifetimeChants": "ਜੀਵਨ ਭਰ ਦੇ ਜਾਪ ਅਤੇ ਅਰਦਾਸਾਂ",
     "lifetimeAffirmations": "ਜੀਵਨ ਭਰ ਦੇ ਵਾਕ",
+    "yourTotal": "ਤੁਹਾਡਾ ਕੁੱਲ",
     "dailyConsistency": "ਰੋਜ਼ਾਨਾ ਨਿਰੰਤਰਤਾ",
     "last30Days": "ਪਿਛਲੇ 30 ਦਿਨ",
     "dayRepetitions": "{{date}}: {{count}} ਦੁਹਰਾਓ",
@@ -308,8 +309,7 @@
     "title": "ਸੰਪਰਕ ਕਰੋ",
     "intro": "ਅਸੀਂ ਸਵਾਲਾਂ, ਸੁਝਾਏ ਵਾਕਾਂ ਵਿੱਚ ਸੁਧਾਰਾਂ, ਅਤੇ ਪਹੁੰਚਯੋਗਤਾ ਫੀਡਬੈਕ ਦਾ ਸੁਆਗਤ ਕਰਦੇ ਹਾਂ।",
     "generalLabel": "ਆਮ",
-    "privacyLabel": "ਗੋਪਨੀਯਤਾ",
-    "contentLabel": "ਸਮੱਗਰੀ ਸੁਧਾਰ"
+    "subjectNote": "ਈਮੇਲ ਭੇਜਦੇ ਸਮੇਂ, ਕਿਰਪਾ ਕਰਕੇ ਵਿਸ਼ੇ (subject) ਵਿੱਚ \"Chant Karo\" ਜ਼ਰੂਰ ਲਿਖੋ।"
   },
   "benefits": {
     "title": "ਜਾਪ ਅਤੇ ਵਾਕਾਂ ਦੇ ਲਾਭ",
