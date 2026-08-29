@@ -42,7 +42,7 @@ test.describe('Core practice flow', () => {
     page,
   }) => {
     await page.goto('/choose');
-    await page.getByRole('link', { name: 'Choose an Affirmation' }).click();
+    await page.getByRole('link', { name: 'Choose Your Intention' }).click();
     await expect(
       page.getByRole('heading', { name: /which positive affirmation would you like to repeat/i }),
     ).toBeVisible();

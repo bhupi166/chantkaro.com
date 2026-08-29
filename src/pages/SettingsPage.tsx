@@ -181,6 +181,18 @@ export function SettingsPage() {
             </select>
           </div>
         </div>
+        <div className="mt-4">
+          <ToggleRow
+            label={t('settings.dailyColorThemeLabel')}
+            checked={Boolean(activeProfile.dailyColorTheme)}
+            onChange={(checked) =>
+              dispatch({ type: 'UPDATE_SETTINGS', patch: { dailyColorTheme: checked } })
+            }
+          />
+          <p className="mt-2 text-sm text-[color:var(--fg-muted)]">
+            {t('settings.dailyColorThemeDescription')}
+          </p>
+        </div>
       </Section>
 
       <Section title={t('settings.dataTitle')}>

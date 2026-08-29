@@ -261,6 +261,8 @@
     "languageEnglish": "English",
     "languageHindi": "हिन्दी (Hindi)",
     "languagePunjabi": "ਪੰਜਾਬੀ (Punjabi)",
+    "dailyColorThemeLabel": "Daily Colour Theme",
+    "dailyColorThemeDescription": "Give the app a different accent colour each day of the week, purely for visual variety.",
     "dataTitle": "Your Data",
     "dataDescription": "Your personal progress is stored privately in this browser. It may be lost if you clear browser data, use private browsing or change devices.",
     "exportButton": "Export Progress (JSON)",

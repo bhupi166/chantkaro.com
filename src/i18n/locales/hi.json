@@ -261,6 +261,8 @@
     "languageEnglish": "English",
     "languageHindi": "हिन्दी (Hindi)",
     "languagePunjabi": "ਪੰਜਾਬੀ (Punjabi)",
+    "dailyColorThemeLabel": "दैनिक रंग थीम",
+    "dailyColorThemeDescription": "केवल दृश्य विविधता के लिए, ऐप को सप्ताह के हर दिन एक अलग रंग दें।",
     "dataTitle": "आपका डेटा",
     "dataDescription": "आपकी व्यक्तिगत प्रगति इस ब्राउज़र में निजी रूप से संग्रहीत है। यदि आप ब्राउज़र डेटा साफ़ करते हैं, निजी ब्राउज़िंग का उपयोग करते हैं या डिवाइस बदलते हैं तो यह खो सकती है।",
     "exportButton": "प्रगति निर्यात करें (JSON)",

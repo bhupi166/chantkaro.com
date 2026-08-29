@@ -17,6 +17,7 @@ export function createProfile(name: string): ProfileData {
     uiLanguage: 'en',
     vibrationEnabled: true,
     soundEnabled: false,
+    dailyColorTheme: false,
     contributeToGlobalTotals: true,
     hasSeenContributionNotice: false,
     customChants: [],

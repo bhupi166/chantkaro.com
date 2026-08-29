@@ -27,6 +27,7 @@ export type AppDataAction =
           | 'uiLanguage'
           | 'vibrationEnabled'
           | 'soundEnabled'
+          | 'dailyColorTheme'
           | 'contributeToGlobalTotals'
           | 'hasSeenContributionNotice'
         >

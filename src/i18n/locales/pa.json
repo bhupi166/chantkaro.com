@@ -261,6 +261,8 @@
     "languageEnglish": "English",
     "languageHindi": "हिन्दी (Hindi)",
     "languagePunjabi": "ਪੰਜਾਬੀ (Punjabi)",
+    "dailyColorThemeLabel": "ਰੋਜ਼ਾਨਾ ਰੰਗ ਥੀਮ",
+    "dailyColorThemeDescription": "ਸਿਰਫ਼ ਦਿੱਖ ਵਿੱਚ ਬਦਲਾਅ ਲਈ, ਐਪ ਨੂੰ ਹਫ਼ਤੇ ਦੇ ਹਰ ਦਿਨ ਇੱਕ ਵੱਖਰਾ ਰੰਗ ਦਿਓ।",
     "dataTitle": "ਤੁਹਾਡਾ ਡਾਟਾ",
     "dataDescription": "ਤੁਹਾਡੀ ਨਿੱਜੀ ਤਰੱਕੀ ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਨਿੱਜੀ ਤੌਰ 'ਤੇ ਸਟੋਰ ਹੈ। ਜੇ ਤੁਸੀਂ ਬ੍ਰਾਊਜ਼ਰ ਡਾਟਾ ਸਾਫ਼ ਕਰਦੇ ਹੋ, ਨਿੱਜੀ ਬ੍ਰਾਊਜ਼ਿੰਗ ਵਰਤਦੇ ਹੋ ਜਾਂ ਡਿਵਾਈਸ ਬਦਲਦੇ ਹੋ ਤਾਂ ਇਹ ਗੁਆਚ ਸਕਦੀ ਹੈ।",
     "exportButton": "ਤਰੱਕੀ ਐਕਸਪੋਰਟ ਕਰੋ (JSON)",

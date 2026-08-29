@@ -40,8 +40,11 @@
   --fg-muted: var(--color-ink-700);
   /* Darker than the saffron-500 used decoratively (e.g. the logo) so that
      white text on this background clears WCAG AA 4.5:1 for normal text. */
-  --accent: var(--color-saffron-700);
-  --accent-contrast: #ffffff;
+  /* --daily-accent-* is set by useDailyColorTheme() only when a user opts
+     into "Daily Colour Theme" in Settings — unset by default, so these
+     var() calls simply fall back to the app's usual saffron accent. */
+  --accent: var(--daily-accent-light, var(--color-saffron-700));
+  --accent-contrast: var(--daily-accent-contrast-light, #ffffff);
   --border: color-mix(in srgb, var(--color-purple-500) 12%, transparent);
   --ring: var(--color-purple-500);
 }
@@ -52,8 +55,8 @@
   --bg-elevated: #241c2e;
   --fg: #f7ede0;
   --fg-muted: #cdbfd6;
-  --accent: var(--color-saffron-400);
-  --accent-contrast: #241c2e;
+  --accent: var(--daily-accent-dark, var(--color-saffron-400));
+  --accent-contrast: var(--daily-accent-contrast-dark, #241c2e);
   --border: color-mix(in srgb, var(--color-gold-300) 18%, transparent);
   --ring: var(--color-gold-300);
 }
@@ -65,8 +68,8 @@
     --bg-elevated: #241c2e;
     --fg: #f7ede0;
     --fg-muted: #cdbfd6;
-    --accent: var(--color-saffron-400);
-    --accent-contrast: #241c2e;
+    --accent: var(--daily-accent-dark, var(--color-saffron-400));
+    --accent-contrast: var(--daily-accent-contrast-dark, #241c2e);
     --border: color-mix(in srgb, var(--color-gold-300) 18%, transparent);
     --ring: var(--color-gold-300);
   }

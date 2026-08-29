@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { useAppData } from '@/state/AppDataContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useDailyColorTheme } from '@/hooks/useDailyColorTheme';
 import { HomePage } from '@/pages/HomePage';
 
 const ChooseActivityPage = lazy(() =>
@@ -72,6 +73,7 @@ export default function App() {
   const { activeProfile } = useAppData();
   useTheme(activeProfile.theme);
   useLanguage(activeProfile.uiLanguage);
+  useDailyColorTheme(Boolean(activeProfile.dailyColorTheme));
 
   return (
     <Layout>
