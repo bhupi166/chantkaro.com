@@ -27,3 +27,23 @@ test('the installed service worker serves the app shell while fully offline', as
   await expect(page.getByRole('heading', { name: 'Chant Karo' })).toBeVisible();
   await context.setOffline(false);
 });
+
+test('a direct visit to a sub-route (not just "/") renders the real page, not the offline/fallback shell', async ({
+  page,
+}) => {
+  // Regression test: navigateFallback was once misconfigured to a static
+  // "You're offline" page, which Workbox then served for every navigation
+  // request that wasn't individually precached — including a direct visit
+  // to /settings while fully online. It must serve the real SPA shell.
+  await page.goto('/');
+  await page.waitForFunction(() => navigator.serviceWorker?.ready.then(() => true));
+  await page.waitForTimeout(1000);
+
+  await page.goto('/settings');
+  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+  await expect(page.getByText(/you're offline/i)).not.toBeVisible();
+
+  // A hard reload on that same sub-route must behave the same way.
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+});

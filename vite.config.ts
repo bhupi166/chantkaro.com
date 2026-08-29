@@ -48,7 +48,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-        navigateFallback: '/offline.html',
+        // The SPA shell, not a static "offline" page — Workbox serves this
+        // for every navigation that isn't otherwise precached (e.g. a
+        // direct visit to /settings), online or offline, so React Router
+        // can take over client-side. Pointing this at a static offline
+        // page instead made every direct route visit show "You're
+        // offline" regardless of actual connectivity.
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {

@@ -30,7 +30,7 @@ affirmations — count by tap or voice, with your personal progress kept private
 │   ├── src/
 │   ├── migrations/
 │   └── schema.sql
-├── public/                # Static assets, icons, robots.txt, sitemap.xml, offline.html
+├── public/                # Static assets, icons, robots.txt, sitemap.xml
 └── scripts/generate-icons.mjs  # Regenerates PWA icons from the Chant Karo mark
 ```
 
