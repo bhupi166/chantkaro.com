@@ -36,6 +36,12 @@ export function TapCounterArea({
   const [resetOpen, setResetOpen] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const wasCompleteRef = useRef(isComplete);
+  const tapButtonRef = useRef<HTMLButtonElement>(null);
+  const pausedRef = useRef(paused);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
 
   useEffect(() => {
     if (isComplete && !wasCompleteRef.current) {
@@ -43,6 +49,28 @@ export function TapCounterArea({
     }
     wasCompleteRef.current = isComplete;
   }, [isComplete]);
+
+  // On iOS, a sustained press over the button can make Safari hijack the
+  // touch for its own gesture recognition (text-selection callout,
+  // long-press drag-arming) — once that happens, iOS delivers a
+  // `touchcancel` instead of `touchend` and never synthesizes a click at
+  // all, so short taps work but held-down taps silently stop counting no
+  // matter what CSS is applied. Calling preventDefault() on `touchstart`
+  // tells iOS not to do any of that for this element, so every tap is
+  // handled directly and reliably below — but React attaches its
+  // touchstart listener as passive by default (for scroll performance),
+  // where preventDefault() is silently ignored, so this has to be a real,
+  // manually-attached { passive: false } listener rather than a JSX prop.
+  useEffect(() => {
+    const el = tapButtonRef.current;
+    if (!el) return;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (pausedRef.current) return;
+      e.preventDefault();
+    };
+    el.addEventListener('touchstart', handleTouchStart, { passive: false });
+    return () => el.removeEventListener('touchstart', handleTouchStart);
+  }, []);
 
   function handleTapAreaClick(e: React.MouseEvent<HTMLButtonElement>) {
     if (paused) return;
@@ -54,6 +82,16 @@ export function TapCounterArea({
     if (soundEnabled) playTapSound();
   }
 
+  function handleTapAreaTouchEnd(e: React.TouchEvent<HTMLButtonElement>) {
+    if (paused) return;
+    if (!e.nativeEvent.isTrusted) return;
+    // touchstart's preventDefault() above already suppresses the browser's
+    // own compatibility click for touch input, so this is the only place a
+    // touch tap gets counted — no double-counting against handleTapAreaClick.
+    onTap();
+    if (soundEnabled) playTapSound();
+  }
+
   const tapAriaLabel = stats.target
     ? t('practice.tapAriaLabelWithTarget', { count: stats.sessionCount, target: stats.target })
     : t('practice.tapAriaLabelNoTarget', { count: stats.sessionCount });
@@ -61,8 +99,10 @@ export function TapCounterArea({
   return (
     <div className="flex flex-col items-center gap-6">
       <button
+        ref={tapButtonRef}
         type="button"
         onClick={handleTapAreaClick}
+        onTouchEnd={handleTapAreaTouchEnd}
         disabled={paused}
         aria-label={tapAriaLabel}
         className={`flex select-none items-center justify-center rounded-full transition-transform active:scale-[0.98] ${
