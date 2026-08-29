@@ -6,8 +6,8 @@ export interface ProfessionCategory {
 }
 
 /**
- * Ordered to match the profession picker shown after "Work & Professional
- * Affirmations". "Other Profession" and "Write My Own Affirmation" always
+ * Ordered to match the profession picker shown after "Career Growth &
+ * Success". "Other Profession" and "Write My Own Affirmation" always
  * resolve to an empty suggestion list — see PROFESSIONAL_AFFIRMATIONS.
  * Category labels are translated via i18next (professional.categories.*);
  * `label` here is only the English fallback passed to t() as a default.
