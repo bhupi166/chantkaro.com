@@ -302,11 +302,17 @@
   },
   "about": {
     "title": "About Chant Karo",
-    "paragraph1": "Chant Karo is a free, inclusive repetition counter for people of every faith and for people practising positive affirmations. Every faith. Every positive thought. One peaceful community.",
-    "paragraph2": "Choose a suggested chant, prayer or affirmation — or enter your own — and count repetitions by tap or by voice. No login, no registration, no personal details. Your progress stays privately in your browser.",
-    "paragraph3": "Chant Karo is an independent project and is not affiliated with, endorsed by, or operated on behalf of any religious organization or denomination.",
-    "whyHeading": "Why we built it",
-    "whyBody": "Counting repetitions with a physical mala, tasbih or tally is a practice millions of people already know. Chant Karo brings that same simple counting into a calm, private, digital space — without asking anything of you beyond a tap or a spoken word."
+    "paragraph1": "Chant Karo is a free and inclusive repetition counter for people of every faith and for anyone practising positive affirmations. Every faith. Every prayer. One peaceful community.",
+    "paragraph2": "Choose a suggested sacred name, mantra, prayer, simran, dhikr or affirmation—or create your own—and count repetitions using Tap Mode or Voice Mode. No login, registration or personal details are required.",
+    "paragraph3": "Your personal practice and history remain private on your device. Only anonymous repetition totals may contribute to the global community counter. Your spoken words are not recorded, stored or shared.",
+    "paragraph4": "Chant Karo is an independent project. It is not affiliated with, endorsed by or operated on behalf of any religious organization, spiritual institution or denomination.",
+    "respectHeading": "Respect for Every Tradition",
+    "respectBody1": "We deeply respect all faiths, traditions and personal beliefs. We never intend to misrepresent any tradition or hurt anyone's religious or personal sentiments.",
+    "respectBody2": "Spellings, meanings and pronunciations may vary according to language, region and tradition. If a provided phrase differs from your practice or appears incorrect, please do not use it. You can create a custom version based on your beliefs, rituals and trusted spiritual guidance.",
+    "respectBody3": "Users are responsible for the phrases they create and their intentions when using the platform. Custom content must not be used to threaten, target, insult or wish harm upon any person or community.",
+    "whyHeading": "Why We Built It",
+    "whyBody": "Counting repetitions with a physical mala, tasbih or tally is a familiar practice for millions of people. Chant Karo brings this simple practice into a calm, private digital space—without asking anything from you beyond a tap or spoken phrase.",
+    "whyBody2": "Spiritual practices and affirmations can support reflection and positivity, but they do not guarantee medical, financial, professional, relationship or other outcomes."
   },
   "contact": {
     "title": "Contact",

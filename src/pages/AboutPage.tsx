@@ -8,8 +8,14 @@ export function AboutPage() {
       <p>{t('about.paragraph1')}</p>
       <p>{t('about.paragraph2')}</p>
       <p>{t('about.paragraph3')}</p>
+      <p>{t('about.paragraph4')}</p>
+      <h2 className="font-display text-lg font-semibold">{t('about.respectHeading')}</h2>
+      <p>{t('about.respectBody1')}</p>
+      <p>{t('about.respectBody2')}</p>
+      <p>{t('about.respectBody3')}</p>
       <h2 className="font-display text-lg font-semibold">{t('about.whyHeading')}</h2>
       <p>{t('about.whyBody')}</p>
+      <p>{t('about.whyBody2')}</p>
     </article>
   );
 }
