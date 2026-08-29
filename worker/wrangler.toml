@@ -26,8 +26,15 @@ crons = ["0 * * * *"]
 # Hard CPU-time cap per invocation (ms), deliberately well under the
 # platform default — every handler here is a handful of small D1 queries,
 # so a runaway request should fail fast rather than run up CPU-time
-# billing on the paid plan. Requires ADMIN_TOKEN to be set as a secret:
+# billing on the paid plan.
+#
+# DISABLED for now: Cloudflare rejects a deploy with [limits] unless the
+# account is on the Workers Paid plan. Once the account is upgraded
+# (https://dash.cloudflare.com/b318f147d1e5015ef822db8851718153/workers/plans),
+# uncomment the two lines below and redeploy.
+# [limits]
+# cpu_ms = 50
+#
+# ADMIN_TOKEN must be set as a secret (works on any plan):
 #   wrangler secret put ADMIN_TOKEN
 # Never put its value in this file, .dev.vars, or any frontend code.
-[limits]
-cpu_ms = 50
