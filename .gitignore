@@ -16,8 +16,10 @@ coverage
 playwright-report
 test-results
 .env
-.env.*
+.env.local
+.env.*.local
 !.env.example
+!.env.production
 worker/.wrangler
 worker/.dev.vars
 

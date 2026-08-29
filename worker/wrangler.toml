@@ -12,7 +12,11 @@ ALLOWED_ORIGINS = "https://chantkaro.com,https://www.chantkaro.com"
 [[d1_databases]]
 binding = "DB"
 database_name = "chantkaro-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "9a76d7dd-a69c-4664-90dc-5cbc1c64f5a7"
+
+[[routes]]
+pattern = "api.chantkaro.com"
+custom_domain = true
 
 # Optional: run scheduled cleanup of expired rate-limit buckets.
 [triggers]
