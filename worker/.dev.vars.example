@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local `wrangler dev`. No secrets are required for
+# this API — it's a public, unauthenticated aggregate-counter endpoint — but
+# this file is the place to add any in the future without committing them.
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173

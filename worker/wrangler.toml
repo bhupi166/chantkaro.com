@@ -1,0 +1,19 @@
+name = "chantkaro-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Pages typically serves the frontend and proxies /api/* to this
+# Worker (see README "Cloudflare deployment"). Update allowed_origins for
+# your real domain(s) before going to production.
+[vars]
+ALLOWED_ORIGINS = "https://chantkaro.com,https://www.chantkaro.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chantkaro-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Optional: run scheduled cleanup of expired rate-limit buckets.
+[triggers]
+crons = ["0 * * * *"]
