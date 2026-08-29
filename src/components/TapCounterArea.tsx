@@ -68,7 +68,17 @@ export function TapCounterArea({
         className={`flex select-none items-center justify-center rounded-full transition-transform active:scale-[0.98] ${
           paused ? 'opacity-50' : ''
         }`}
-        style={{ WebkitTapHighlightColor: 'transparent' }}
+        style={{
+          WebkitTapHighlightColor: 'transparent',
+          // iOS Safari shows a text-selection callout (magnifying-glass
+          // loupe / copy menu) after a sustained press over text content,
+          // which swallows the click on release — `select-none` alone
+          // doesn't suppress it on iOS; -webkit-touch-callout is the
+          // specific fix. touchAction avoids the double-tap-zoom gesture
+          // delay interfering with rapid tapping too.
+          WebkitTouchCallout: 'none',
+          touchAction: 'manipulation',
+        }}
       >
         <CircularProgress percent={percent}>
           <div className="flex flex-col items-center">
