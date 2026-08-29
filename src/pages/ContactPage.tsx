@@ -22,6 +22,7 @@ export function ContactPage() {
         </div>
       </dl>
       <p className="text-sm text-[color:var(--fg-muted)]">{t('contact.subjectNote')}</p>
+      <p className="text-sm text-[color:var(--fg-muted)]">{t('contact.responseTimeNote')}</p>
     </article>
   );
 }
