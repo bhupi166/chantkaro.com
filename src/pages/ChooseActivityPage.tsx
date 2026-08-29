@@ -19,6 +19,24 @@ export function ChooseActivityPage() {
           to="/affirmation"
           buttonLabel="Choose an Affirmation"
         />
+        <ActivityCard
+          title="Children's Affirmations"
+          description="Calm, confidence-building affirmations for exams and everyday life."
+          to="/affirmation/children"
+          buttonLabel="Choose a Children's Affirmation"
+        />
+        <ActivityCard
+          title="Parents' Affirmations"
+          description="Supportive affirmations for patient, pressure-free parenting."
+          to="/affirmation/parents"
+          buttonLabel="Choose a Parents' Affirmation"
+        />
+        <ActivityCard
+          title="Work & Professional Affirmations"
+          description="Choose your profession to see relevant affirmations, or write your own."
+          to="/affirmation/professional"
+          buttonLabel="Choose Your Profession"
+        />
       </div>
     </div>
   );

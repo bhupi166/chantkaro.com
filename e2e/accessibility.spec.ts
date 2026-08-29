@@ -37,4 +37,25 @@ test.describe('Accessibility — main journey', () => {
     await page.goto('/settings');
     await expectNoSeriousViolations(page);
   });
+
+  test('children affirmations page', async ({ page }) => {
+    await page.goto('/affirmation/children');
+    await expectNoSeriousViolations(page);
+  });
+
+  test('parents affirmations page', async ({ page }) => {
+    await page.goto('/affirmation/parents');
+    await expectNoSeriousViolations(page);
+  });
+
+  test('professional affirmations: category picker', async ({ page }) => {
+    await page.goto('/affirmation/professional');
+    await expectNoSeriousViolations(page);
+  });
+
+  test('professional affirmations: a chosen category', async ({ page }) => {
+    await page.goto('/affirmation/professional');
+    await page.getByRole('button', { name: 'Teacher', exact: true }).click();
+    await expectNoSeriousViolations(page);
+  });
 });

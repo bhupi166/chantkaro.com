@@ -14,6 +14,17 @@ const ChantSelectPage = lazy(() =>
 const AffirmationSelectPage = lazy(() =>
   import('@/pages/AffirmationSelectPage').then((m) => ({ default: m.AffirmationSelectPage })),
 );
+const ChildrenAffirmationsPage = lazy(() =>
+  import('@/pages/ChildrenAffirmationsPage').then((m) => ({ default: m.ChildrenAffirmationsPage })),
+);
+const ParentsAffirmationsPage = lazy(() =>
+  import('@/pages/ParentsAffirmationsPage').then((m) => ({ default: m.ParentsAffirmationsPage })),
+);
+const ProfessionalAffirmationsPage = lazy(() =>
+  import('@/pages/ProfessionalAffirmationsPage').then((m) => ({
+    default: m.ProfessionalAffirmationsPage,
+  })),
+);
 const PracticePage = lazy(() =>
   import('@/pages/PracticePage').then((m) => ({ default: m.PracticePage })),
 );
@@ -53,6 +64,9 @@ export default function App() {
           <Route path="/choose" element={<ChooseActivityPage />} />
           <Route path="/chant" element={<ChantSelectPage />} />
           <Route path="/affirmation" element={<AffirmationSelectPage />} />
+          <Route path="/affirmation/children" element={<ChildrenAffirmationsPage />} />
+          <Route path="/affirmation/parents" element={<ParentsAffirmationsPage />} />
+          <Route path="/affirmation/professional" element={<ProfessionalAffirmationsPage />} />
           <Route path="/practice" element={<PracticePage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

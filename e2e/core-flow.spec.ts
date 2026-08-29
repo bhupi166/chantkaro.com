@@ -61,4 +61,59 @@ test.describe('Core practice flow', () => {
       page.getByRole('heading', { name: 'My grandmother taught me this prayer' }),
     ).toBeVisible();
   });
+
+  test('children’s affirmations reach Tap Mode', async ({ page }) => {
+    await page.goto('/choose');
+    await page.getByRole('link', { name: "Choose a Children's Affirmation" }).click();
+    await expect(page).toHaveURL(/\/affirmation\/children$/);
+    await page
+      .getByRole('button', { name: 'I prepare for my exams calmly and confidently.' })
+      .click();
+    await page.getByRole('button', { name: 'Begin Practice' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'I prepare for my exams calmly and confidently.' }),
+    ).toBeVisible();
+  });
+
+  test('parents’ affirmations reach Tap Mode', async ({ page }) => {
+    await page.goto('/affirmation/parents');
+    await page
+      .getByRole('button', { name: 'I never compare my child with another child.' })
+      .click();
+    await page.getByRole('button', { name: 'Begin Practice' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'I never compare my child with another child.' }),
+    ).toBeVisible();
+  });
+
+  test('professional affirmations: pick a category with suggestions, reach Tap Mode', async ({
+    page,
+  }) => {
+    await page.goto('/affirmation/professional');
+    await page.getByRole('button', { name: 'Teacher', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Affirmations for Teacher' })).toBeVisible();
+    await page
+      .getByRole('button', { name: 'I teach with patience, clarity and compassion.' })
+      .click();
+    await page.getByRole('button', { name: 'Begin Practice' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'I teach with patience, clarity and compassion.' }),
+    ).toBeVisible();
+  });
+
+  test('professional affirmations: a category with no suggestions falls back to custom entry only', async ({
+    page,
+  }) => {
+    await page.goto('/affirmation/professional');
+    await page.getByRole('button', { name: 'Homemaker', exact: true }).click();
+    await expect(page.getByText(/no suggestions for this category yet/i)).toBeVisible();
+    await page
+      .getByLabel('Write your own affirmation')
+      .fill('I care for my home and family with love.');
+    await page.getByRole('button', { name: 'Use This Text' }).click();
+    await page.getByRole('button', { name: 'Begin Practice' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'I care for my home and family with love.' }),
+    ).toBeVisible();
+  });
 });
