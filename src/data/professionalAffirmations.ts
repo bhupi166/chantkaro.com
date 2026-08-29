@@ -22,7 +22,6 @@ export const PROFESSION_CATEGORIES: ProfessionCategory[] = [
   { key: 'government-employee', label: 'Government Employee' },
   { key: 'sales', label: 'Sales Professional' },
   { key: 'customer-service', label: 'Customer-Service Professional' },
-  { key: 'farmer', label: 'Farmer' },
   { key: 'creative', label: 'Creative Professional' },
   { key: 'homemaker', label: 'Homemaker' },
   { key: 'job-seeker', label: 'Job Seeker' },
@@ -351,58 +350,6 @@ export const PROFESSIONAL_AFFIRMATIONS: Record<string, PracticeOption[]> = {
       titleTranslations: {
         hi: 'मैं अपनी भलाई का ध्यान रखने के लिए भी समय निकालता/निकालती हूँ।',
         pa: 'ਮੈਂ ਆਪਣੀ ਭਲਾਈ ਦਾ ਧਿਆਨ ਰੱਖਣ ਲਈ ਵੀ ਸਮਾਂ ਕੱਢਦਾ/ਕੱਢਦੀ ਹਾਂ।',
-      },
-    },
-  ],
-  farmer: [
-    {
-      id: 'prof-farmer-respect-land',
-      category: 'affirmation',
-      tradition: 'universal',
-      title: 'I respect the land and work with patience.',
-      titleTranslations: {
-        hi: 'मैं भूमि का सम्मान करता/करती हूँ और धैर्य से काम करता/करती हूँ।',
-        pa: 'ਮੈਂ ਜ਼ਮੀਨ ਦਾ ਸਤਿਕਾਰ ਕਰਦਾ/ਕਰਦੀ ਹਾਂ ਅਤੇ ਸਬਰ ਨਾਲ ਕੰਮ ਕਰਦਾ/ਕਰਦੀ ਹਾਂ।',
-      },
-    },
-    {
-      id: 'prof-farmer-thoughtful-decisions',
-      category: 'affirmation',
-      tradition: 'universal',
-      title: 'I make thoughtful decisions using knowledge and experience.',
-      titleTranslations: {
-        hi: 'मैं ज्ञान और अनुभव का उपयोग करके सोच-समझकर निर्णय लेता/लेती हूँ।',
-        pa: 'ਮੈਂ ਗਿਆਨ ਅਤੇ ਤਜਰਬੇ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਸੋਚ-ਸਮਝ ਕੇ ਫੈਸਲੇ ਲੈਂਦਾ/ਲੈਂਦੀ ਹਾਂ।',
-      },
-    },
-    {
-      id: 'prof-farmer-adapt-courage',
-      category: 'affirmation',
-      tradition: 'universal',
-      title: 'I adapt to changing conditions with courage.',
-      titleTranslations: {
-        hi: 'मैं बदलती परिस्थितियों में साहस के साथ खुद को ढालता/ढालती हूँ।',
-        pa: 'ਮੈਂ ਬਦਲਦੇ ਹਾਲਾਤਾਂ ਵਿੱਚ ਹਿੰਮਤ ਨਾਲ ਖੁਦ ਨੂੰ ਢਾਲਦਾ/ਢਾਲਦੀ ਹਾਂ।',
-      },
-    },
-    {
-      id: 'prof-farmer-contribute-society',
-      category: 'affirmation',
-      tradition: 'universal',
-      title: 'My work contributes meaningfully to society.',
-      titleTranslations: {
-        hi: 'मेरा काम समाज में सार्थक योगदान देता है।',
-        pa: 'ਮੇਰਾ ਕੰਮ ਸਮਾਜ ਵਿੱਚ ਅਰਥਪੂਰਨ ਯੋਗਦਾਨ ਪਾਉਂਦਾ ਹੈ।',
-      },
-    },
-    {
-      id: 'prof-farmer-sustainable-practices',
-      category: 'affirmation',
-      tradition: 'universal',
-      title: 'I continue learning better and more sustainable practices.',
-      titleTranslations: {
-        hi: 'मैं बेहतर और अधिक टिकाऊ तरीके सीखता/सीखती रहता/रहती हूँ।',
-        pa: 'ਮੈਂ ਬਿਹਤਰ ਅਤੇ ਵਧੇਰੇ ਟਿਕਾਊ ਤਰੀਕੇ ਸਿੱਖਦਾ/ਸਿੱਖਦੀ ਰਹਿੰਦਾ/ਰਹਿੰਦੀ ਹਾਂ।',
       },
     },
   ],
