@@ -58,4 +58,9 @@ test.describe('Accessibility — main journey', () => {
     await page.getByRole('button', { name: 'Teacher', exact: true }).click();
     await expectNoSeriousViolations(page);
   });
+
+  test('benefits page', async ({ page }) => {
+    await page.goto('/benefits');
+    await expectNoSeriousViolations(page);
+  });
 });

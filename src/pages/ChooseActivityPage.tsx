@@ -3,9 +3,14 @@ import { Link } from 'react-router-dom';
 export function ChooseActivityPage() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-display text-2xl font-semibold">
-        What would you like to practise today?
-      </h1>
+      <div>
+        <h1 className="font-display text-2xl font-semibold">
+          What would you like to practise today?
+        </h1>
+        <Link to="/benefits" className="mt-1 inline-block text-sm underline underline-offset-2">
+          Not sure? See the benefits of chanting and affirmations
+        </Link>
+      </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <ActivityCard
           title="Chant or Prayer"

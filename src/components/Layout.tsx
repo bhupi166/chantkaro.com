@@ -62,6 +62,9 @@ function Footer() {
           <NavLink to="/about" className="hover:underline">
             About
           </NavLink>
+          <NavLink to="/benefits" className="hover:underline">
+            Benefits
+          </NavLink>
           <NavLink to="/privacy" className="hover:underline">
             Privacy Policy
           </NavLink>

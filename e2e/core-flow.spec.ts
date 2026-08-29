@@ -116,4 +116,18 @@ test.describe('Core practice flow', () => {
       page.getByRole('heading', { name: 'I care for my home and family with love.' }),
     ).toBeVisible();
   });
+
+  test('the benefits page is reachable from Choose Activity and lists both sections', async ({
+    page,
+  }) => {
+    await page.goto('/choose');
+    await page
+      .getByRole('link', { name: /see the benefits of chanting and affirmations/i })
+      .click();
+    await expect(page).toHaveURL(/\/benefits$/);
+    await expect(page.getByRole('heading', { name: 'Chant Benefits' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Affirmation Benefits' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Creates a Peaceful Pause' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Develops a Mindful Routine' })).toBeVisible();
+  });
 });

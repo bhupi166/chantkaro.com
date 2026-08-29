@@ -37,6 +37,9 @@ const PrivacyPage = lazy(() =>
 );
 const TermsPage = lazy(() => import('@/pages/TermsPage').then((m) => ({ default: m.TermsPage })));
 const AboutPage = lazy(() => import('@/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const BenefitsPage = lazy(() =>
+  import('@/pages/BenefitsPage').then((m) => ({ default: m.BenefitsPage })),
+);
 const ContactPage = lazy(() =>
   import('@/pages/ContactPage').then((m) => ({ default: m.ContactPage })),
 );
@@ -73,6 +76,7 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/benefits" element={<BenefitsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
