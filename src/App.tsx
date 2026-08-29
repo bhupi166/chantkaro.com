@@ -27,6 +27,16 @@ const ProfessionalAffirmationsPage = lazy(() =>
     default: m.ProfessionalAffirmationsPage,
   })),
 );
+const LovingPartnerAffirmationsPage = lazy(() =>
+  import('@/pages/LovingPartnerAffirmationsPage').then((m) => ({
+    default: m.LovingPartnerAffirmationsPage,
+  })),
+);
+const RelationshipAffirmationsPage = lazy(() =>
+  import('@/pages/RelationshipAffirmationsPage').then((m) => ({
+    default: m.RelationshipAffirmationsPage,
+  })),
+);
 const PracticePage = lazy(() =>
   import('@/pages/PracticePage').then((m) => ({ default: m.PracticePage })),
 );
@@ -74,6 +84,8 @@ export default function App() {
           <Route path="/affirmation/children" element={<ChildrenAffirmationsPage />} />
           <Route path="/affirmation/parents" element={<ParentsAffirmationsPage />} />
           <Route path="/affirmation/professional" element={<ProfessionalAffirmationsPage />} />
+          <Route path="/affirmation/loving-partner" element={<LovingPartnerAffirmationsPage />} />
+          <Route path="/affirmation/relationship" element={<RelationshipAffirmationsPage />} />
           <Route path="/practice" element={<PracticePage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

@@ -73,7 +73,13 @@
     "parentsButton": "Choose a Parents' Affirmation",
     "professionalTitle": "Career Growth & Success",
     "professionalDescription": "Choose your profession to see relevant affirmations, or write your own.",
-    "professionalButton": "Choose Your Profession"
+    "professionalButton": "Choose Your Profession",
+    "lovingPartnerTitle": "Manifesting a Loving Partner",
+    "lovingPartnerDescription": "For unmarried adults preparing for a healthy, respectful and committed relationship.",
+    "lovingPartnerButton": "Choose a Loving-Partner Affirmation",
+    "relationshipTitle": "Strengthening Your Relationship",
+    "relationshipDescription": "For married couples and partners nurturing love, trust and mutual understanding.",
+    "relationshipButton": "Choose a Relationship Affirmation"
   },
   "practiceSelector": {
     "searchLabel": "Search",
@@ -132,6 +138,18 @@
     "heading": "Which affirmation would you like to repeat?",
     "supportingText": "Affirmations for patient, pressure-free parenting — choose one or write your own.",
     "customPlaceholder": "Example: I guide my child with patience and love."
+  },
+  "lovingPartner": {
+    "heading": "Which affirmation would you like to repeat?",
+    "supportingText": "For unmarried adults aged 21 or above, regardless of profession or employment status, who are preparing for a healthy, respectful and committed relationship.",
+    "customPlaceholder": "Example: I am ready to welcome genuine love into my life.",
+    "contentNote": "This category is intended for unmarried adults. If you are married or already in a committed relationship, please choose Strengthening Your Relationship instead."
+  },
+  "relationship": {
+    "heading": "Which affirmation would you like to repeat?",
+    "supportingText": "For married couples and adults already in a committed relationship who want to nurture love, trust and mutual understanding.",
+    "customPlaceholder": "Example: I communicate with my partner honestly and respectfully.",
+    "contentNote": "These affirmations encourage positive reflection and communication. They do not guarantee relationship outcomes or replace professional counselling or support."
   },
   "professional": {
     "chooseHeading": "What is your work or profession?",

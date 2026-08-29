@@ -42,6 +42,18 @@ export function ChooseActivityPage() {
           to="/affirmation/professional"
           buttonLabel={t('choose.professionalButton')}
         />
+        <ActivityCard
+          title={t('choose.lovingPartnerTitle')}
+          description={t('choose.lovingPartnerDescription')}
+          to="/affirmation/loving-partner"
+          buttonLabel={t('choose.lovingPartnerButton')}
+        />
+        <ActivityCard
+          title={t('choose.relationshipTitle')}
+          description={t('choose.relationshipDescription')}
+          to="/affirmation/relationship"
+          buttonLabel={t('choose.relationshipButton')}
+        />
       </div>
     </div>
   );
