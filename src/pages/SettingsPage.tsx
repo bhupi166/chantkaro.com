@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppData } from '@/state/AppDataContext';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { clearAppData, exportAppDataJson, importAppDataJson } from '@/lib/storage';
 import type { ThemePreference, UiLanguage } from '@/lib/types';
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const { data, activeProfile, dispatch } = useAppData();
   const [newProfileName, setNewProfileName] = useState('');
   const [clearOpen, setClearOpen] = useState(false);
@@ -31,7 +33,11 @@ export function SettingsPage() {
     const text = await file.text();
     const result = importAppDataJson(text);
     if (!result.ok || !result.data) {
-      setImportError(result.error ?? 'Import failed.');
+      setImportError(
+        result.error === 'invalid-json'
+          ? t('settings.importErrorInvalidJson')
+          : t('settings.importErrorInvalidBackup'),
+      );
       return;
     }
     dispatch({ type: 'IMPORT_DATA', data: result.data });
@@ -46,13 +52,10 @@ export function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="font-display text-2xl font-semibold">Settings</h1>
+      <h1 className="font-display text-2xl font-semibold">{t('settings.title')}</h1>
 
-      <Section title="Local Profiles">
-        <p className="text-sm text-[color:var(--fg-muted)]">
-          Profiles are stored only on this device — not online accounts. Switch to keep everyone's
-          progress separate.
-        </p>
+      <Section title={t('settings.profilesTitle')}>
+        <p className="text-sm text-[color:var(--fg-muted)]">{t('settings.profilesDescription')}</p>
         <ul className="mt-3 flex flex-wrap gap-2">
           {data.profiles.map((p) => (
             <li key={p.id}>
@@ -73,13 +76,13 @@ export function SettingsPage() {
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <label htmlFor="new-profile" className="sr-only">
-            New profile name
+            {t('settings.newProfilePlaceholder')}
           </label>
           <input
             id="new-profile"
             value={newProfileName}
             onChange={(e) => setNewProfileName(e.target.value)}
-            placeholder="e.g. Mother"
+            placeholder={t('settings.newProfilePlaceholder')}
             className="min-h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-3 py-2 text-sm"
           />
           <button
@@ -91,7 +94,7 @@ export function SettingsPage() {
             }}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium"
           >
-            Add Profile
+            {t('settings.addProfile')}
           </button>
           {data.profiles.length > 1 && (
             <button
@@ -99,37 +102,35 @@ export function SettingsPage() {
               onClick={() => dispatch({ type: 'DELETE_PROFILE', profileId: activeProfile.id })}
               className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium text-red-600"
             >
-              Delete Current Profile
+              {t('settings.deleteProfile')}
             </button>
           )}
         </div>
       </Section>
 
-      <Section title="Anonymous Contribution">
+      <Section title={t('settings.contributionTitle')}>
         <ToggleRow
-          label="Contribute to Global Totals"
+          label={t('settings.contributeToggleLabel')}
           checked={activeProfile.contributeToGlobalTotals}
           onChange={(checked) =>
             dispatch({ type: 'UPDATE_SETTINGS', patch: { contributeToGlobalTotals: checked } })
           }
         />
         <p className="mt-2 text-sm text-[color:var(--fg-muted)]">
-          Only a number and category (chant or affirmation) are ever sent — never your words, voice
-          or identity. Turning this off stops new increments; totals already sent cannot be
-          identified or removed.
+          {t('settings.contributionDescription')}
         </p>
       </Section>
 
-      <Section title="Practice Feel">
+      <Section title={t('settings.practiceFeelTitle')}>
         <ToggleRow
-          label="Vibration on tap"
+          label={t('settings.vibrationLabel')}
           checked={activeProfile.vibrationEnabled}
           onChange={(checked) =>
             dispatch({ type: 'UPDATE_SETTINGS', patch: { vibrationEnabled: checked } })
           }
         />
         <ToggleRow
-          label="Sound on tap"
+          label={t('settings.soundLabel')}
           checked={activeProfile.soundEnabled}
           onChange={(checked) =>
             dispatch({ type: 'UPDATE_SETTINGS', patch: { soundEnabled: checked } })
@@ -137,11 +138,11 @@ export function SettingsPage() {
         />
       </Section>
 
-      <Section title="Appearance & Language">
+      <Section title={t('settings.appearanceTitle')}>
         <div className="flex flex-col gap-4 sm:flex-row">
           <div>
             <label htmlFor="theme-select" className="mb-1 block text-sm font-medium">
-              Theme
+              {t('settings.themeLabel')}
             </label>
             <select
               id="theme-select"
@@ -154,14 +155,14 @@ export function SettingsPage() {
               }
               className="min-h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-3 py-2 text-sm"
             >
-              <option value="system">Match device</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="system">{t('settings.themeSystem')}</option>
+              <option value="light">{t('settings.themeLight')}</option>
+              <option value="dark">{t('settings.themeDark')}</option>
             </select>
           </div>
           <div>
             <label htmlFor="lang-select" className="mb-1 block text-sm font-medium">
-              Interface language
+              {t('settings.languageLabel')}
             </label>
             <select
               id="lang-select"
@@ -174,32 +175,30 @@ export function SettingsPage() {
               }
               className="min-h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-3 py-2 text-sm"
             >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="en">{t('settings.languageEnglish')}</option>
+              <option value="hi">{t('settings.languageHindi')}</option>
+              <option value="pa">{t('settings.languagePunjabi')}</option>
             </select>
           </div>
         </div>
       </Section>
 
-      <Section title="Your Data">
-        <p className="text-sm text-[color:var(--fg-muted)]">
-          Your personal progress is stored privately in this browser. It may be lost if you clear
-          browser data, use private browsing or change devices.
-        </p>
+      <Section title={t('settings.dataTitle')}>
+        <p className="text-sm text-[color:var(--fg-muted)]">{t('settings.dataDescription')}</p>
         <div className="mt-3 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={handleExport}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium"
           >
-            Export Progress (JSON)
+            {t('settings.exportButton')}
           </button>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium"
           >
-            Import Progress
+            {t('settings.importButton')}
           </button>
           <input
             ref={fileInputRef}
@@ -217,7 +216,7 @@ export function SettingsPage() {
             onClick={() => setClearOpen(true)}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium text-red-600"
           >
-            Clear All Personal Data
+            {t('settings.clearButton')}
           </button>
         </div>
         {importError && (
@@ -227,16 +226,16 @@ export function SettingsPage() {
         )}
         {importOk && (
           <p role="status" className="mt-2 text-sm text-green-700">
-            Progress imported successfully.
+            {t('settings.importSuccess')}
           </p>
         )}
       </Section>
 
       <ConfirmDialog
         open={clearOpen}
-        title="Clear all personal data?"
-        description="This permanently removes all local profiles, custom chants and affirmations, and progress on this device. This cannot be undone."
-        confirmLabel="Clear Everything"
+        title={t('settings.clearDialogTitle')}
+        description={t('settings.clearDialogDescription')}
+        confirmLabel={t('settings.clearConfirmLabel')}
         destructive
         onConfirm={handleClearConfirmed}
         onCancel={() => setClearOpen(false)}

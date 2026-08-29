@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CircularProgress } from './CircularProgress';
 import { ConfirmDialog } from './ConfirmDialog';
 import { Confetti } from './Confetti';
@@ -30,6 +31,7 @@ export function TapCounterArea({
   onUndo,
   onResetConfirmed,
 }: TapCounterAreaProps) {
+  const { t } = useTranslation();
   const [paused, setPaused] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
@@ -48,13 +50,17 @@ export function TapCounterArea({
     if (soundEnabled) playTapSound();
   }
 
+  const tapAriaLabel = stats.target
+    ? t('practice.tapAriaLabelWithTarget', { count: stats.sessionCount, target: stats.target })
+    : t('practice.tapAriaLabelNoTarget', { count: stats.sessionCount });
+
   return (
     <div className="flex flex-col items-center gap-6">
       <button
         type="button"
         onClick={handleTapAreaClick}
         disabled={paused}
-        aria-label={`Tap to count. Current count ${stats.sessionCount}${stats.target ? ` of ${stats.target}` : ''}.`}
+        aria-label={tapAriaLabel}
         className={`flex select-none items-center justify-center rounded-full transition-transform active:scale-[0.98] ${
           paused ? 'opacity-50' : ''
         }`}
@@ -66,10 +72,12 @@ export function TapCounterArea({
               {stats.sessionCount}
             </span>
             {stats.target != null && (
-              <span className="text-sm text-[color:var(--fg-muted)]">of {stats.target}</span>
+              <span className="text-sm text-[color:var(--fg-muted)]">
+                {t('practice.of', { target: stats.target })}
+              </span>
             )}
             <span className="mt-2 text-xs text-[color:var(--fg-muted)]">
-              {paused ? 'Paused — tap Resume' : 'Tap here'}
+              {paused ? t('practice.pausedTapResume') : t('practice.tapHere')}
             </span>
           </div>
         </CircularProgress>
@@ -84,25 +92,22 @@ export function TapCounterArea({
               prefersReducedMotion() ? '' : 'animate-[fadeIn_400ms_ease-out]'
             }`}
           >
-            <p className="font-medium">
-              🎉 You achieved your target today! Continue chanting for your peace, if it feels
-              right.
-            </p>
+            <p className="font-medium">{t('practice.completionMessage')}</p>
             <button
               type="button"
               onClick={() => setShowCompletion(false)}
               className="mt-2 text-sm underline underline-offset-2"
             >
-              Dismiss
+              {t('practice.dismiss')}
             </button>
           </div>
         </>
       )}
 
       <div className="grid w-full max-w-md grid-cols-3 gap-3 text-center">
-        <StatBlock label="Today" value={stats.todayCount} />
-        <StatBlock label="Session" value={stats.sessionCount} />
-        <StatBlock label="Lifetime" value={stats.lifetimeCount} />
+        <StatBlock label={t('practice.today')} value={stats.todayCount} />
+        <StatBlock label={t('practice.session')} value={stats.sessionCount} />
+        <StatBlock label={t('practice.lifetime')} value={stats.lifetimeCount} />
       </div>
 
       <div
@@ -110,16 +115,23 @@ export function TapCounterArea({
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <ControlButton label={paused ? 'Resume' : 'Pause'} onClick={() => setPaused((p) => !p)} />
-        <ControlButton label="Undo" onClick={onUndo} disabled={stats.sessionCount === 0} />
-        <ControlButton label="Reset" onClick={() => setResetOpen(true)} />
+        <ControlButton
+          label={paused ? t('practice.resume') : t('practice.pause')}
+          onClick={() => setPaused((p) => !p)}
+        />
+        <ControlButton
+          label={t('practice.undo')}
+          onClick={onUndo}
+          disabled={stats.sessionCount === 0}
+        />
+        <ControlButton label={t('practice.reset')} onClick={() => setResetOpen(true)} />
       </div>
 
       <ConfirmDialog
         open={resetOpen}
-        title="Reset this session?"
-        description="This clears your current session count back to zero. Your today and lifetime totals are not affected."
-        confirmLabel="Reset Session"
+        title={t('practice.resetDialogTitle')}
+        description={t('practice.resetDialogDescription')}
+        confirmLabel={t('practice.resetConfirmLabel')}
         destructive
         onConfirm={() => {
           onResetConfirmed();

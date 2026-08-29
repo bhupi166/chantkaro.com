@@ -20,6 +20,13 @@ export interface PracticeOption {
   hidden?: boolean;
   /** Marks content pending final expert/community review. */
   needsReview?: boolean;
+  /**
+   * Per-UI-language display text, used only for affirmations (a chant's
+   * `title` is a transliterated proper noun and stays constant regardless
+   * of interface language — only `script` varies, independently of this).
+   * Falls back to `title` when the active language has no entry.
+   */
+  titleTranslations?: Partial<Record<'hi' | 'pa', string>>;
 }
 
 export type RepetitionTarget = 11 | 21 | 51 | 108 | 1008 | number | null;
@@ -28,7 +35,7 @@ export type PracticeMode = 'tap' | 'voice';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
-export type UiLanguage = 'en' | 'hi';
+export type UiLanguage = 'en' | 'hi' | 'pa';
 
 export interface CustomPractice {
   id: string;

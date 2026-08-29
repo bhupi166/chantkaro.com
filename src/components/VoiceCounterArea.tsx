@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { VOICE_RECOGNITION_LOCALE, type SupportedLanguage } from '@/i18n';
 import type { PracticeStats } from '@/lib/types';
 
 interface VoiceCounterAreaProps {
@@ -17,18 +19,18 @@ export function VoiceCounterArea({
   onUndo,
   onUseTapModeInstead,
 }: VoiceCounterAreaProps) {
+  const { t, i18n } = useTranslation();
   const [consented, setConsented] = useState(false);
   const [showTranscript, setShowTranscript] = useState(true);
+  const voiceLang =
+    VOICE_RECOGNITION_LOCALE[i18n.language as SupportedLanguage] ?? VOICE_RECOGNITION_LOCALE.en;
   const { supported, status, transcript, errorMessage, start, pause, resume, stop } =
-    useSpeechRecognition({
-      phrase,
-      onMatches,
-    });
+    useSpeechRecognition({ phrase, lang: voiceLang, onMatches });
 
   if (!supported) {
     return (
       <FallbackNotice
-        message="Voice Mode is not supported in this browser. You can keep practising with Tap Mode."
+        message={t('voice.unsupportedMessage')}
         onUseTapModeInstead={onUseTapModeInstead}
       />
     );
@@ -38,17 +40,10 @@ export function VoiceCounterArea({
     return (
       <div className="card-surface mx-auto flex max-w-md flex-col gap-4 rounded-2xl p-6 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-[color:var(--accent)]">
-          Voice Mode · Beta
+          {t('voice.betaLabel')}
         </p>
-        <p>
-          Chant Karo needs microphone access to recognize and count your selected words. Voice Mode
-          is optional. You can use Tap Mode without microphone access.
-        </p>
-        <p className="text-sm text-[color:var(--fg-muted)]">
-          Chant Karo does not record, store or receive your voice. Your browser or device may
-          process speech using its own recognition service. Please review your browser's privacy
-          settings before using Voice Mode.
-        </p>
+        <p>{t('voice.micPermissionExplain')}</p>
+        <p className="text-sm text-[color:var(--fg-muted)]">{t('voice.privacyNotice')}</p>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
           <button
             type="button"
@@ -58,14 +53,14 @@ export function VoiceCounterArea({
             }}
             className="min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)]"
           >
-            Allow Microphone & Start
+            {t('voice.allowAndStart')}
           </button>
           <button
             type="button"
             onClick={onUseTapModeInstead}
             className="min-h-12 rounded-full border border-[color:var(--border)] px-6 py-3 text-base font-semibold"
           >
-            Use Tap Mode Instead
+            {t('voice.useTapModeInstead')}
           </button>
         </div>
       </div>
@@ -75,7 +70,7 @@ export function VoiceCounterArea({
   if (status === 'denied') {
     return (
       <FallbackNotice
-        message="Microphone access was not granted. You can allow it in your browser settings, or continue with Tap Mode."
+        message={t('voice.deniedMessage')}
         onUseTapModeInstead={onUseTapModeInstead}
       />
     );
@@ -96,30 +91,39 @@ export function VoiceCounterArea({
             aria-hidden
             className={`h-2 w-2 rounded-full ${status === 'listening' ? 'bg-white' : 'bg-[color:var(--fg-muted)]'}`}
           />
-          {status === 'listening' ? 'Listening…' : status === 'paused' ? 'Paused' : 'Voice Mode'}
+          {status === 'listening'
+            ? t('voice.listening')
+            : status === 'paused'
+              ? t('voice.paused')
+              : t('voice.voiceModeLabel')}
         </span>
         <span className="font-display text-6xl font-bold tabular-nums">{stats.sessionCount}</span>
         {stats.target != null && (
-          <span className="text-sm text-[color:var(--fg-muted)]">of {stats.target}</span>
+          <span className="text-sm text-[color:var(--fg-muted)]">
+            {t('practice.of', { target: stats.target })}
+          </span>
         )}
       </div>
 
       {errorMessage && (
         <p role="alert" className="text-sm text-red-600">
-          Voice recognition had a problem ({errorMessage}). You can keep trying or switch to Tap
-          Mode.
+          {t('voice.errorMessage', { error: errorMessage })}
         </p>
       )}
 
       <div className="flex flex-wrap justify-center gap-3">
         {status === 'listening' ? (
-          <ControlButton label="Pause" onClick={pause} />
+          <ControlButton label={t('practice.pause')} onClick={pause} />
         ) : (
-          <ControlButton label="Resume" onClick={resume} />
+          <ControlButton label={t('practice.resume')} onClick={resume} />
         )}
-        <ControlButton label="Undo" onClick={onUndo} disabled={stats.sessionCount === 0} />
-        <ControlButton label="Stop" onClick={stop} />
-        <ControlButton label="Use Tap Mode Instead" onClick={onUseTapModeInstead} />
+        <ControlButton
+          label={t('practice.undo')}
+          onClick={onUndo}
+          disabled={stats.sessionCount === 0}
+        />
+        <ControlButton label={t('voice.stop')} onClick={stop} />
+        <ControlButton label={t('voice.useTapModeInstead')} onClick={onUseTapModeInstead} />
       </div>
 
       <div className="w-full max-w-md">
@@ -128,7 +132,7 @@ export function VoiceCounterArea({
           onClick={() => setShowTranscript((v) => !v)}
           className="text-xs text-[color:var(--fg-muted)] underline underline-offset-2"
         >
-          {showTranscript ? 'Hide live captions' : 'Show live captions'}
+          {showTranscript ? t('voice.hideLiveCaptions') : t('voice.showLiveCaptions')}
         </button>
         {showTranscript && (
           <p
@@ -150,6 +154,7 @@ function FallbackNotice({
   message: string;
   onUseTapModeInstead: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="card-surface mx-auto flex max-w-md flex-col gap-4 rounded-2xl p-6 text-center">
       <p>{message}</p>
@@ -158,7 +163,7 @@ function FallbackNotice({
         onClick={onUseTapModeInstead}
         className="mx-auto min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)]"
       >
-        Use Tap Mode Instead
+        {t('voice.useTapModeInstead')}
       </button>
     </div>
   );

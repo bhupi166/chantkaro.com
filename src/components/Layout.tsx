@@ -1,30 +1,36 @@
 import { NavLink } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { OfflineIndicator } from './OfflineIndicator';
 
-const NAV_LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/stats', label: 'Progress' },
-  { to: '/settings', label: 'Settings' },
-  { to: '/about', label: 'About' },
-];
-
 export function Layout({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
+
+  const NAV_LINKS = [
+    { to: '/', label: t('nav.home') },
+    { to: '/stats', label: t('nav.progress') },
+    { to: '/settings', label: t('nav.settings') },
+    { to: '/about', label: t('nav.about') },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-[color:var(--bg)] text-[color:var(--fg)]">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[color:var(--accent)] focus:px-4 focus:py-2 focus:text-white"
       >
-        Skip to main content
+        {t('a11y.skipToContent')}
       </a>
       <header className="border-b border-[color:var(--border)]">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4">
-          <NavLink to="/" aria-label="Chant Karo home" className="shrink-0">
+          <NavLink to="/" aria-label={t('a11y.homeLinkLabel')} className="shrink-0">
             <Logo withWordmark wordmarkClassName="hidden sm:inline" />
           </NavLink>
-          <nav aria-label="Primary" className="flex items-center gap-0.5 overflow-x-auto sm:gap-1">
+          <nav
+            aria-label={t('a11y.primaryNavLabel')}
+            className="flex items-center gap-0.5 overflow-x-auto sm:gap-1"
+          >
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
@@ -54,31 +60,31 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="border-t border-[color:var(--border)] py-8 text-sm text-[color:var(--fg-muted)]">
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between">
-        <p>Har naam. Har aastha. Dil se chant karo.</p>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2">
+        <p>{t('common.brandTagline')}</p>
+        <nav aria-label={t('a11y.footerNavLabel')} className="flex flex-wrap gap-x-4 gap-y-2">
           <NavLink to="/about" className="hover:underline">
-            About
+            {t('footer.about')}
           </NavLink>
           <NavLink to="/benefits" className="hover:underline">
-            Benefits
+            {t('footer.benefits')}
           </NavLink>
           <NavLink to="/privacy" className="hover:underline">
-            Privacy Policy
+            {t('footer.privacy')}
           </NavLink>
           <NavLink to="/terms" className="hover:underline">
-            Terms of Use
+            {t('footer.terms')}
           </NavLink>
           <NavLink to="/contact" className="hover:underline">
-            Contact
+            {t('footer.contact')}
           </NavLink>
         </nav>
       </div>
       <p className="mx-auto mt-4 max-w-5xl px-4 text-xs">
-        © {new Date().getFullYear()} Chant Karo. Independent project, not affiliated with or
-        endorsed by any religious organization.
+        {t('footer.copyright', { year: new Date().getFullYear() })}
       </p>
     </footer>
   );

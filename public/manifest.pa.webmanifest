@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Chant Karo",
+  "short_name": "Chant Karo",
+  "description": "ਟੈਪ ਜਾਂ ਆਵਾਜ਼ ਨਾਲ ਜਾਪ, ਅਰਦਾਸ ਅਤੇ ਸਕਾਰਾਤਮਕ ਵਾਕਾਂ ਦੀ ਗਿਣਤੀ ਕਰੋ। ਲੌਗਇਨ ਦੀ ਲੋੜ ਨਹੀਂ। ਤੁਹਾਡੀ ਨਿੱਜੀ ਪ੍ਰਗਤੀ ਤੁਹਾਡੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਨਿੱਜੀ ਰਹਿੰਦੀ ਹੈ।",
+  "lang": "pa",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFF8EE",
+  "theme_color": "#E8734A",
+  "categories": ["lifestyle", "health", "spirituality"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

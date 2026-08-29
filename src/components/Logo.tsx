@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface LogoProps {
   className?: string;
   withWordmark?: boolean;
@@ -16,10 +18,11 @@ export function Logo({
   wordmarkClassName,
   titleId = 'chantkaro-logo-title',
 }: LogoProps) {
+  const { t } = useTranslation();
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ''}`}>
       <svg viewBox="0 0 64 64" width="40" height="40" role="img" aria-labelledby={titleId}>
-        <title id={titleId}>Chant Karo logo</title>
+        <title id={titleId}>{t('common.logoAlt')}</title>
         <defs>
           <linearGradient id="ck-petal" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#F0955C" />
@@ -55,7 +58,7 @@ export function Logo({
         <span
           className={`font-display text-xl font-semibold leading-none text-[color:var(--fg)] ${wordmarkClassName ?? ''}`}
         >
-          Chant Karo
+          {t('common.brandName')}
         </span>
       )}
     </span>

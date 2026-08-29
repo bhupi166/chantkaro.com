@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { Logo } from '@/components/Logo';
 import { GlobalTotalsPanel } from '@/components/GlobalTotalsPanel';
 import { useAppData } from '@/state/AppDataContext';
 
 export function HomePage() {
+  const { t } = useTranslation();
   const { activeProfile } = useAppData();
   const hasProgress = activeProfile.lastActivePractice != null;
 
@@ -12,31 +14,26 @@ export function HomePage() {
       <section className="flex flex-col items-center gap-5 py-6 text-center">
         <Logo className="scale-150" titleId="home-logo-title" />
         <div>
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Chant Karo</h1>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">{t('common.brandName')}</h1>
           <p className="mt-2 text-lg font-medium text-[color:var(--accent)]">
-            Har naam. Har aastha. Dil se chant karo.
+            {t('common.brandTagline')}
           </p>
-          <p className="mt-1 text-sm text-[color:var(--fg-muted)]">
-            Every faith. Every chant. One peaceful space.
-          </p>
+          <p className="mt-1 text-sm text-[color:var(--fg-muted)]">{t('home.taglineSupport')}</p>
         </div>
-        <p className="max-w-xl text-balance text-[color:var(--fg)]">
-          Choose any sacred name, mantra, prayer, simran, dhikr or positive affirmation. Repeat
-          privately, count effortlessly and build a peaceful daily practice—without registration.
-        </p>
+        <p className="max-w-xl text-balance text-[color:var(--fg)]">{t('home.intro')}</p>
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             to="/choose"
             className="min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)] shadow-sm"
           >
-            Start Your Practice
+            {t('home.startPractice')}
           </Link>
           {hasProgress && (
             <Link
               to="/practice"
               className="min-h-12 rounded-full border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-6 py-3 text-base font-semibold"
             >
-              Continue Last Practice
+              {t('home.continueLastPractice')}
             </Link>
           )}
         </div>
@@ -45,28 +42,27 @@ export function HomePage() {
       <GlobalTotalsPanel />
 
       <section className="grid gap-4 sm:grid-cols-2">
+        <ModeExplainer title={t('home.tapModeTitle')} description={t('home.tapModeDescription')} />
         <ModeExplainer
-          title="Tap Mode"
-          description="Tap anywhere on a large, calm counter to record each repetition. Works fully offline, with optional gentle vibration."
-        />
-        <ModeExplainer
-          title="Voice Mode (Beta)"
-          description="Your browser listens for your selected phrase and counts it automatically. Chant Karo never records, stores or sends your voice."
+          title={t('home.voiceModeTitle')}
+          description={t('home.voiceModeDescription')}
         />
       </section>
 
       <section className="card-surface rounded-2xl p-6">
-        <h2 className="font-display text-lg font-semibold">Your privacy, in short</h2>
+        <h2 className="font-display text-lg font-semibold">{t('home.privacyHeading')}</h2>
         <ul className="mt-3 space-y-2 text-sm text-[color:var(--fg-muted)]">
-          <li>No login, registration or personal details, ever.</li>
-          <li>Your words, custom chants and personal history stay on this device.</li>
-          <li>Only an anonymous number and category may be added to the community totals above.</li>
+          <li>{t('home.privacyBullet1')}</li>
+          <li>{t('home.privacyBullet2')}</li>
+          <li>{t('home.privacyBullet3')}</li>
           <li>
-            Read the full{' '}
-            <Link to="/privacy" className="underline">
-              Privacy Policy
-            </Link>
-            .
+            <Trans i18nKey="home.readFullPrivacyPolicy">
+              {'Read the full '}
+              <Link to="/privacy" className="underline">
+                Privacy Policy
+              </Link>
+              {'.'}
+            </Trans>
           </li>
         </ul>
       </section>

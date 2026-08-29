@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RepetitionTarget } from '@/lib/types';
 
 const PRESETS: RepetitionTarget[] = [11, 21, 51, 108, 1008];
@@ -9,6 +10,7 @@ interface TargetPickerProps {
 }
 
 export function TargetPicker({ value, onChange }: TargetPickerProps) {
+  const { t } = useTranslation();
   const isPreset = value == null || PRESETS.includes(value);
   const [customOpen, setCustomOpen] = useState(!isPreset);
   const [customValue, setCustomValue] = useState(isPreset ? '' : String(value));
@@ -16,10 +18,14 @@ export function TargetPicker({ value, onChange }: TargetPickerProps) {
   return (
     <fieldset>
       <legend className="mb-2 text-sm font-medium text-[color:var(--fg-muted)]">
-        Repetition target (optional)
+        {t('target.legend')}
       </legend>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Repetition target">
-        <TargetButton label="No target" selected={value == null} onClick={() => onChange(null)} />
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t('target.groupLabel')}>
+        <TargetButton
+          label={t('target.noTarget')}
+          selected={value == null}
+          onClick={() => onChange(null)}
+        />
         {PRESETS.map((preset) => (
           <TargetButton
             key={preset}
@@ -29,7 +35,7 @@ export function TargetPicker({ value, onChange }: TargetPickerProps) {
           />
         ))}
         <TargetButton
-          label="Custom"
+          label={t('target.custom')}
           selected={customOpen}
           onClick={() => {
             setCustomOpen(true);
@@ -40,7 +46,7 @@ export function TargetPicker({ value, onChange }: TargetPickerProps) {
       {customOpen && (
         <div className="mt-3">
           <label htmlFor="custom-target" className="sr-only">
-            Custom target number
+            {t('target.customNumberLabel')}
           </label>
           <input
             id="custom-target"
@@ -48,7 +54,7 @@ export function TargetPicker({ value, onChange }: TargetPickerProps) {
             inputMode="numeric"
             min={1}
             max={100000}
-            placeholder="Enter a number"
+            placeholder={t('target.enterNumberPlaceholder')}
             className="w-40 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-3 py-2 text-base"
             value={customValue}
             onChange={(e) => {

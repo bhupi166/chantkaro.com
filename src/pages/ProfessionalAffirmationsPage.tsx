@@ -1,20 +1,26 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PracticeSelector } from '@/components/PracticeSelector';
 import { PROFESSIONAL_AFFIRMATIONS, PROFESSION_CATEGORIES } from '@/data/professionalAffirmations';
 
 export function ProfessionalAffirmationsPage() {
+  const { t } = useTranslation();
   const [professionKey, setProfessionKey] = useState<string | null>(null);
 
   if (!professionKey) {
     return (
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="font-display text-2xl font-semibold">What is your work or profession?</h1>
+          <h1 className="font-display text-2xl font-semibold">{t('professional.chooseHeading')}</h1>
           <p className="mt-1 text-[color:var(--fg-muted)]">
-            Choose a category to see relevant affirmations, or write your own.
+            {t('professional.chooseSupportingText')}
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Profession categories">
+        <div
+          className="grid gap-3 sm:grid-cols-2"
+          role="group"
+          aria-label={t('professional.categoriesLabel')}
+        >
           {PROFESSION_CATEGORIES.map((p) => (
             <button
               key={p.key}
@@ -22,7 +28,7 @@ export function ProfessionalAffirmationsPage() {
               onClick={() => setProfessionKey(p.key)}
               className="min-h-11 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-4 py-3 text-left font-medium"
             >
-              {p.label}
+              {t(`professional.categories.${p.key}`, p.label)}
             </button>
           ))}
         </div>
@@ -32,6 +38,7 @@ export function ProfessionalAffirmationsPage() {
 
   const category = PROFESSION_CATEGORIES.find((p) => p.key === professionKey)!;
   const options = PROFESSIONAL_AFFIRMATIONS[professionKey] ?? [];
+  const categoryLabel = t(`professional.categories.${category.key}`, category.label);
 
   return (
     <div className="flex flex-col gap-4">
@@ -40,22 +47,23 @@ export function ProfessionalAffirmationsPage() {
         onClick={() => setProfessionKey(null)}
         className="self-start text-sm underline underline-offset-2"
       >
-        ← Change category
+        {t('professional.changeCategory')}
       </button>
       {/* key forces a clean remount so search/selection state never leaks
           between one profession's list and the next. */}
       <PracticeSelector
         key={professionKey}
         category="affirmation"
-        heading={`Affirmations for ${category.label}`}
-        supportingText={
+        headingKey="professional.headingForCategory"
+        headingValues={{ profession: categoryLabel }}
+        supportingTextKey={
           options.length > 0
-            ? 'Choose a suggested affirmation or write your own.'
-            : 'No suggestions for this category yet — write your own below.'
+            ? 'professional.supportingTextWithSuggestions'
+            : 'professional.supportingTextEmpty'
         }
-        customLabel="Write your own affirmation"
-        customPlaceholder="Example: I approach my work with confidence and care."
-        privacyText="Your custom affirmation and personal progress are stored privately in this browser and are not sent to our server."
+        customLabelKey="affirmationCommon.customLabel"
+        customPlaceholderKey="professional.customPlaceholder"
+        privacyTextKey="affirmationCommon.privacyText"
         options={options}
       />
     </div>

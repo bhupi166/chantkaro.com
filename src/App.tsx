@@ -1,8 +1,10 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '@/components/Layout';
 import { useAppData } from '@/state/AppDataContext';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import { HomePage } from '@/pages/HomePage';
 
 const ChooseActivityPage = lazy(() =>
@@ -48,8 +50,9 @@ const NotFoundPage = lazy(() =>
 );
 
 function PageFallback() {
+  const { t } = useTranslation();
   return (
-    <div className="flex justify-center py-16" role="status" aria-label="Loading">
+    <div className="flex justify-center py-16" role="status" aria-label={t('common.loading')}>
       <span className="h-8 w-8 animate-spin rounded-full border-2 border-[color:var(--accent)] border-t-transparent" />
     </div>
   );
@@ -58,6 +61,7 @@ function PageFallback() {
 export default function App() {
   const { activeProfile } = useAppData();
   useTheme(activeProfile.theme);
+  useLanguage(activeProfile.uiLanguage);
 
   return (
     <Layout>

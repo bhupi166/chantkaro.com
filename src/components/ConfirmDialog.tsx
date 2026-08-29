@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -16,12 +17,15 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation();
+  const resolvedConfirmLabel = confirmLabel ?? t('common.confirm');
+  const resolvedCancelLabel = cancelLabel ?? t('common.cancel');
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -61,7 +65,7 @@ export function ConfirmDialog({
             onClick={onCancel}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium"
           >
-            {cancelLabel}
+            {resolvedCancelLabel}
           </button>
           <button
             ref={confirmRef}
@@ -71,7 +75,7 @@ export function ConfirmDialog({
               destructive ? 'bg-red-600' : 'bg-[color:var(--accent)]'
             }`}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </button>
         </div>
       </div>

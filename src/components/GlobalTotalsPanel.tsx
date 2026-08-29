@@ -1,32 +1,34 @@
+import { useTranslation } from 'react-i18next';
 import { useGlobalTotals } from '@/hooks/useGlobalTotals';
 import { formatCount } from '@/lib/format';
 
 export function GlobalTotalsPanel() {
+  const { t } = useTranslation();
   const { totals, status } = useGlobalTotals();
 
   return (
     <section aria-labelledby="global-totals-heading" className="card-surface rounded-2xl p-6">
       <p id="global-totals-heading" className="font-display text-lg font-semibold">
-        Together, we are creating positive energy—one repetition at a time.
+        {t('totals.heading')}
       </p>
       {status === 'unavailable' && (
         <p className="mt-3 text-sm text-[color:var(--fg-muted)]" role="status">
-          Global totals are temporarily unavailable. Your personal practice keeps working normally.
+          {t('totals.unavailable')}
         </p>
       )}
       <dl className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <TotalStat
-          label="Chants & Prayers"
+          label={t('totals.chantsAndPrayers')}
           value={totals?.chantsAndPrayers}
           loading={status === 'loading'}
         />
         <TotalStat
-          label="Positive Affirmations"
+          label={t('totals.positiveAffirmations')}
           value={totals?.positiveAffirmations}
           loading={status === 'loading'}
         />
         <TotalStat
-          label="Total Positive Repetitions"
+          label={t('totals.totalPositiveRepetitions')}
           value={totals?.totalPositiveRepetitions}
           loading={status === 'loading'}
           emphasize
@@ -47,6 +49,7 @@ function TotalStat({
   loading: boolean;
   emphasize?: boolean;
 }) {
+  const { i18n } = useTranslation();
   return (
     <div className={`rounded-xl p-4 text-center ${emphasize ? 'bg-[color:var(--bg)]' : ''}`}>
       <dt className="text-sm text-[color:var(--fg-muted)]">{label}</dt>
@@ -59,7 +62,7 @@ function TotalStat({
         ) : value == null ? (
           '—'
         ) : (
-          formatCount(value)
+          formatCount(value, [i18n.language, navigator.language])
         )}
       </dd>
     </div>

@@ -1,7 +1,7 @@
 # Chant Karo
 
 **Har naam. Har aastha. Dil se chant karo.**
-*Every faith. Every chant. One peaceful space.*
+_Every faith. Every chant. One peaceful space._
 
 A free, inclusive, no-login repetition counter for chants, prayers, simran, dhikr and positive
 affirmations — count by tap or voice, with your personal progress kept privately in your browser.
@@ -132,14 +132,14 @@ moderate traffic.
 
 ## 7. Privacy architecture (what goes where)
 
-| Data | Where it lives | Sent to server? |
-|---|---|---|
-| Selected/custom chants, prayers, affirmations | Browser LocalStorage | Never |
-| Session / today / lifetime counts, targets, completion history | Browser LocalStorage | Never |
-| Local profiles, theme, language, vibration/sound prefs | Browser LocalStorage | Never |
-| Voice transcript | React component state only, cleared on stop | Never |
-| Microphone audio | Not accessed by Chant Karo beyond the browser's own recognizer | Never |
-| Anonymous increment: `{ category, amount, idempotencyKey }` | — | Only if "Contribute to Global Totals" is on |
+| Data                                                           | Where it lives                                                 | Sent to server?                             |
+| -------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
+| Selected/custom chants, prayers, affirmations                  | Browser LocalStorage                                           | Never                                       |
+| Session / today / lifetime counts, targets, completion history | Browser LocalStorage                                           | Never                                       |
+| Local profiles, theme, language, vibration/sound prefs         | Browser LocalStorage                                           | Never                                       |
+| Voice transcript                                               | React component state only, cleared on stop                    | Never                                       |
+| Microphone audio                                               | Not accessed by Chant Karo beyond the browser's own recognizer | Never                                       |
+| Anonymous increment: `{ category, amount, idempotencyKey }`    | —                                                              | Only if "Contribute to Global Totals" is on |
 
 The Worker (`worker/src/index.ts`) validates every increment request server-side
 (`worker/src/validate.ts`): category must be `chant`/`affirmation`, amount must be a positive integer
@@ -193,6 +193,12 @@ for convenient counting. Please follow the wording and guidance of your own spir
 the content is organized to be easy to correct, extend or hide (`hidden: true`) without touching any
 counting logic.
 
+**Affirmation translations** (Hindi/Punjabi, in every `titleTranslations` field across
+`src/data/*Affirmations.ts`) were produced for this app rather than sourced from a published
+reference — a reasonable first pass, not a substitute for a native-speaker review before treating them
+as final. This is a lower-stakes category than the chant content above (ordinary supportive sentences,
+not liturgical text), but the same principle applies: verify before relying on it.
+
 ## 11. Accessibility
 
 Built to WCAG 2.2 AA principles: semantic landmarks and headings, full keyboard operability, visible
@@ -200,3 +206,47 @@ focus rings, an accessible modal dialog for destructive confirmations, `aria-liv
 status/voice transcript, `role="progressbar"` on the circular counter, minimum 44×44px touch targets,
 `prefers-reduced-motion` support, and correct `lang`/RTL handling for Hindi, Gurmukhi and Arabic
 script. `npm run test:e2e` runs an automated axe-core pass on the primary journey as part of CI.
+
+## 12. Internationalization
+
+The interface is fully translated into **English, Hindi and Punjabi** using
+[i18next](https://www.i18next.com/) + [react-i18next](https://react.i18next.com/). Nothing user-facing
+is hardcoded in a component — every string goes through `t('namespace.key')` (or `<Trans>` for text
+with an embedded link, e.g. "Read the full **Privacy Policy**.").
+
+- **Where translations live**: `src/i18n/locales/{en,hi,pa}.json` — one flat, namespaced JSON file per
+  language (`common.*`, `home.*`, `settings.*`, `privacy.*`, …). `src/i18n/locales.test.ts` asserts all
+  three files have exactly the same key set and no empty values, so a missing translation fails CI
+  instead of silently falling back to English (or a raw key) in production.
+- **Loading strategy**: only English ships in the main bundle; Hindi and Punjabi are fetched as
+  separate chunks on first use (`src/i18n/index.ts` → `loadLanguage()`), so visitors who never switch
+  language — the default case — don't pay for translations they never see.
+- **Language selection**: driven by the existing per-profile `uiLanguage` setting (Settings →
+  Appearance & Language) — the single source of truth, already persisted to LocalStorage via
+  `AppDataContext`. `src/hooks/useLanguage.ts` reacts to it: loads the language bundle, calls
+  `i18n.changeLanguage`, updates `<html lang>`, and swaps the PWA manifest `<link>` to
+  `manifest.{lang}.webmanifest` (see below).
+- **Voice recognition locale**: `VOICE_RECOGNITION_LOCALE` in `src/i18n/index.ts` maps the UI language
+  to the BCP-47 tag passed to the Web Speech API — `en` → `en-IN`, `hi` → `hi-IN`, `pa` → `pa-IN` —
+  wired through `VoiceCounterArea`.
+- **Suggested-content translation model**: a chant/prayer's `title` (e.g. "Om Namah Shivaya") is a
+  transliterated proper noun and **never changes** with UI language — only its `script` field
+  (Devanagari/Gurmukhi/Arabic) does, independently. Affirmations are ordinary sentences, so they _do_
+  translate: `PracticeOption.titleTranslations: { hi?, pa? }` holds the per-language text, resolved by
+  `src/lib/practiceLocalization.ts`, with the English `title` as fallback. **Custom, user-entered text
+  is never translated or altered** — the app doesn't have translation access to it, by design (it's
+  never sent anywhere — see §7).
+- **PWA metadata**: three static manifest files (`public/manifest.{en,hi,pa}.webmanifest`) carry a
+  translated `name`/`description`; `useLanguage` swaps which one `index.html`'s `<link rel="manifest">`
+  points at. (The Web App Manifest spec has no mechanism for one manifest to carry multiple languages,
+  and this is a static Cloudflare Pages deployment with no server-side `Accept-Language` negotiation —
+  this client-side swap is the practical middle ground.)
+- **Fonts**: the base font stack (`src/index.css`) lists `Hind` (Latin + Devanagari) with `Noto Sans
+Devanagari` and `Noto Sans Gurmukhi` as fallbacks, loaded in `index.html`, so both scripts render
+  correctly whether they appear in translated UI chrome or in a chant's native-script line.
+- **Testing**: `e2e/i18n.spec.ts` switches language and checks translated headings render, persist
+  across reload, update `<html lang>`, and — critically — that the layout has **no horizontal overflow
+  in Hindi or Punjabi** on real mobile viewports (Devanagari/Gurmukhi text runs longer than English in
+  places, e.g. the header nav). `src/pages/HomePage.test.tsx` guards specifically against a `<Trans>`
+  child-index bug class (a stray `{' '}` between text and a linked element shifts every following
+  index, silently dropping the link — see git history for the concretes).

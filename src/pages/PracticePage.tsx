@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppData } from '@/state/AppDataContext';
 import { usePracticeCounter } from '@/hooks/usePracticeCounter';
 import { useFullscreen } from '@/hooks/useFullscreen';
@@ -9,6 +10,7 @@ import { VoiceCounterArea } from '@/components/VoiceCounterArea';
 import type { PracticeMode } from '@/lib/types';
 
 export function PracticePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { activeProfile, dispatch } = useAppData();
   const selection = activeProfile.lastActivePractice;
@@ -56,11 +58,7 @@ export function PracticePage() {
     <div ref={containerRef} className="flex flex-col items-center gap-8 bg-[color:var(--bg)] py-4">
       {!activeProfile.hasSeenContributionNotice && activeProfile.contributeToGlobalTotals && (
         <div role="status" className="card-surface w-full max-w-xl rounded-2xl p-4 text-sm">
-          <p>
-            Anonymous contribution is on. Only numerical increments and the activity type are added
-            to the global community total. Your words, voice, identity and personal history remain
-            private. You can turn this off anytime in Settings.
-          </p>
+          <p>{t('practice.contributionNotice')}</p>
           <div className="mt-3 flex flex-wrap gap-3">
             <button
               type="button"
@@ -69,7 +67,7 @@ export function PracticePage() {
               }
               className="min-h-9 rounded-full bg-[color:var(--accent)] px-4 py-1.5 text-sm font-semibold text-[color:var(--accent-contrast)]"
             >
-              Got it
+              {t('practice.gotIt')}
             </button>
             <button
               type="button"
@@ -81,7 +79,7 @@ export function PracticePage() {
               }
               className="min-h-9 rounded-full border border-[color:var(--border)] px-4 py-1.5 text-sm font-medium"
             >
-              Keep My Counts Private
+              {t('practice.keepPrivate')}
             </button>
           </div>
         </div>
@@ -89,7 +87,9 @@ export function PracticePage() {
 
       <div className="flex flex-col items-center gap-1 text-center">
         <p className="text-xs font-medium uppercase tracking-wide text-[color:var(--fg-muted)]">
-          {selection.category === 'chant' ? 'Chant / Prayer' : 'Affirmation'}
+          {selection.category === 'chant'
+            ? t('practice.categoryChant')
+            : t('practice.categoryAffirmation')}
         </p>
         <h1 className="font-display text-2xl font-semibold">{selection.displayText}</h1>
         {selection.displayScript && (
@@ -118,11 +118,11 @@ export function PracticePage() {
       )}
 
       <div className="flex flex-wrap justify-center gap-3">
-        <SecondaryButton label="Change Practice" onClick={() => navigate('/choose')} />
-        <SecondaryButton label="Settings" onClick={() => navigate('/settings')} />
+        <SecondaryButton label={t('practice.changePractice')} onClick={() => navigate('/choose')} />
+        <SecondaryButton label={t('nav.settings')} onClick={() => navigate('/settings')} />
         {fullscreenSupported && (
           <SecondaryButton
-            label={isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
+            label={isFullscreen ? t('practice.exitFullScreen') : t('practice.fullScreen')}
             onClick={() => void toggleFullscreen()}
           />
         )}

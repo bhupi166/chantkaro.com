@@ -1,6 +1,10 @@
 import { CHANTS } from '@/data/chants';
 import { AFFIRMATIONS } from '@/data/affirmations';
-import type { PracticeCategory, PracticeSelection, ProfileData } from './types';
+import { CHILDREN_AFFIRMATIONS } from '@/data/childrenAffirmations';
+import { PARENTS_AFFIRMATIONS } from '@/data/parentsAffirmations';
+import { PROFESSIONAL_AFFIRMATIONS } from '@/data/professionalAffirmations';
+import { localizedOptionTitle } from './practiceLocalization';
+import type { PracticeCategory, PracticeOption, PracticeSelection, ProfileData } from './types';
 
 export interface RecentEntry {
   selection: PracticeSelection;
@@ -11,10 +15,22 @@ export interface RecentEntry {
 export function resolveRecentSelections(
   profile: ProfileData,
   category: PracticeCategory,
+  language: string,
   limit = 5,
 ): RecentEntry[] {
   const prefix = `${category}:`;
-  const catalog = category === 'chant' ? CHANTS : AFFIRMATIONS;
+  // Suggested options can come from any of the affirmation catalogs (the
+  // general list, or the children/parents/professional pages), all of
+  // which share the same "affirmation" category and recent-key namespace.
+  const catalog: PracticeOption[] =
+    category === 'chant'
+      ? CHANTS
+      : [
+          ...AFFIRMATIONS,
+          ...CHILDREN_AFFIRMATIONS,
+          ...PARENTS_AFFIRMATIONS,
+          ...Object.values(PROFESSIONAL_AFFIRMATIONS).flat(),
+        ];
   const customList = category === 'chant' ? profile.customChants : profile.customAffirmations;
 
   const entries: RecentEntry[] = [];
@@ -23,14 +39,15 @@ export function resolveRecentSelections(
     const rest = key.slice(prefix.length);
     const option = catalog.find((o) => o.id === rest);
     if (option) {
+      const label = localizedOptionTitle(option, language);
       entries.push({
         selection: {
           category,
           optionId: option.id,
-          displayText: option.title,
+          displayText: label,
           displayScript: option.script,
         },
-        label: option.title,
+        label,
         script: option.script,
       });
       continue;

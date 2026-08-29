@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppData } from '@/state/AppDataContext';
 import { CHANTS } from '@/data/chants';
 import { AFFIRMATIONS } from '@/data/affirmations';
@@ -33,6 +34,7 @@ function labelForKey(key: string, profile: ReturnType<typeof useAppData>['active
 }
 
 export function StatsPage() {
+  const { t, i18n } = useTranslation();
   const { activeProfile } = useAppData();
 
   const today = useMemo(() => todaysRepetitions(activeProfile), [activeProfile]);
@@ -48,34 +50,34 @@ export function StatsPage() {
     [activeProfile],
   );
   const maxDay = Math.max(1, ...calendar.map((d) => d.count));
+  const count = (value: number) => formatCount(value, [i18n.language, navigator.language]);
 
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-display text-2xl font-semibold">My Progress</h1>
-        <p className="mt-1 text-[color:var(--fg-muted)]">
-          Your practice is personal. Continue whenever it feels right.
-        </p>
+        <h1 className="font-display text-2xl font-semibold">{t('stats.heading')}</h1>
+        <p className="mt-1 text-[color:var(--fg-muted)]">{t('stats.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Today" value={today} />
-        <StatCard label="Last 7 Days" value={sevenDay} />
-        <StatCard label="Lifetime Chants & Prayers" value={lifetime.chant} />
-        <StatCard label="Lifetime Affirmations" value={lifetime.affirmation} />
+        <StatCard label={t('stats.today')} formatted={count(today)} />
+        <StatCard label={t('stats.last7Days')} formatted={count(sevenDay)} />
+        <StatCard label={t('stats.lifetimeChants')} formatted={count(lifetime.chant)} />
+        <StatCard label={t('stats.lifetimeAffirmations')} formatted={count(lifetime.affirmation)} />
       </div>
 
       <section className="card-surface rounded-2xl p-6">
-        <h2 className="font-display text-lg font-semibold">Daily consistency</h2>
-        <p className="text-sm text-[color:var(--fg-muted)]">Last 30 days</p>
+        <h2 className="font-display text-lg font-semibold">{t('stats.dailyConsistency')}</h2>
+        <p className="text-sm text-[color:var(--fg-muted)]">{t('stats.last30Days')}</p>
         <div className="mt-4 grid grid-cols-10 gap-1.5 sm:grid-cols-[repeat(15,minmax(0,1fr))]">
           {calendar.map((day) => {
             const intensity = day.count === 0 ? 0 : Math.max(0.25, day.count / maxDay);
+            const dayLabel = t('stats.dayRepetitions', { date: day.date, count: day.count });
             return (
               <div
                 key={day.date}
-                title={`${day.date}: ${day.count} repetitions`}
-                aria-label={`${day.date}: ${day.count} repetitions`}
+                title={dayLabel}
+                aria-label={dayLabel}
                 className="aspect-square rounded"
                 style={{
                   background:
@@ -90,19 +92,15 @@ export function StatsPage() {
       </section>
 
       <section className="card-surface rounded-2xl p-6">
-        <h2 className="font-display text-lg font-semibold">Per-practice totals</h2>
+        <h2 className="font-display text-lg font-semibold">{t('stats.perPracticeTotals')}</h2>
         {perPractice.length === 0 ? (
-          <p className="mt-2 text-sm text-[color:var(--fg-muted)]">
-            Nothing recorded yet — start a practice to see it here.
-          </p>
+          <p className="mt-2 text-sm text-[color:var(--fg-muted)]">{t('stats.noPracticeYet')}</p>
         ) : (
           <ul className="mt-3 divide-y divide-[color:var(--border)]">
             {perPractice.map((row) => (
               <li key={row.key} className="flex items-center justify-between py-2">
                 <span className="truncate pr-4">{row.label}</span>
-                <span className="tabular-nums font-medium">
-                  {formatCount(row.stats.lifetimeCount)}
-                </span>
+                <span className="tabular-nums font-medium">{count(row.stats.lifetimeCount)}</span>
               </li>
             ))}
           </ul>
@@ -110,16 +108,16 @@ export function StatsPage() {
       </section>
 
       <section className="card-surface rounded-2xl p-6">
-        <h2 className="font-display text-lg font-semibold">Target completions</h2>
+        <h2 className="font-display text-lg font-semibold">{t('stats.targetCompletions')}</h2>
         {completions.length === 0 ? (
-          <p className="mt-2 text-sm text-[color:var(--fg-muted)]">No targets completed yet.</p>
+          <p className="mt-2 text-sm text-[color:var(--fg-muted)]">{t('stats.noCompletionsYet')}</p>
         ) : (
           <ul className="mt-3 space-y-1 text-sm">
             {completions.slice(0, 20).map((c, i) => (
               <li key={i} className="flex justify-between">
                 <span>{labelForKey(c.key, activeProfile)}</span>
                 <span className="text-[color:var(--fg-muted)]">
-                  {c.target} · {new Date(c.at).toLocaleDateString()}
+                  {c.target} · {new Date(c.at).toLocaleDateString(i18n.language)}
                 </span>
               </li>
             ))}
@@ -130,11 +128,11 @@ export function StatsPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, formatted }: { label: string; formatted: string }) {
   return (
     <div className="card-surface rounded-2xl p-4 text-center">
       <div className="text-xs text-[color:var(--fg-muted)]">{label}</div>
-      <div className="font-display text-2xl font-semibold tabular-nums">{formatCount(value)}</div>
+      <div className="font-display text-2xl font-semibold tabular-nums">{formatted}</div>
     </div>
   );
 }

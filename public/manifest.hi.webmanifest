@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Chant Karo",
+  "short_name": "Chant Karo",
+  "description": "टैप या आवाज़ से जप, प्रार्थना और सकारात्मक पुष्टि की गिनती करें। लॉगिन की आवश्यकता नहीं। आपकी व्यक्तिगत प्रगति आपके ब्राउज़र में निजी रहती है।",
+  "lang": "hi",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFF8EE",
+  "theme_color": "#E8734A",
+  "categories": ["lifestyle", "health", "spirituality"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

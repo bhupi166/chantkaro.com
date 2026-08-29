@@ -111,20 +111,23 @@ export function exportAppDataJson(data: AppData): string {
   return JSON.stringify(data, null, 2);
 }
 
+export type ImportErrorCode = 'invalid-json' | 'invalid-backup';
+
 export interface ImportResult {
   ok: boolean;
   data?: AppData;
-  error?: string;
+  /** A code, not a message — the UI layer resolves this to translated text. */
+  error?: ImportErrorCode;
 }
 
 export function importAppDataJson(json: string): ImportResult {
   try {
     const parsed = JSON.parse(json);
     if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.profiles)) {
-      return { ok: false, error: 'This file does not look like a Chant Karo backup.' };
+      return { ok: false, error: 'invalid-backup' };
     }
     return { ok: true, data: migrate(parsed) };
   } catch {
-    return { ok: false, error: 'This file could not be read as valid JSON.' };
+    return { ok: false, error: 'invalid-json' };
   }
 }

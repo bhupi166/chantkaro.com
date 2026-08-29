@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface CircularProgressProps {
   percent: number | null;
   size?: number;
@@ -11,6 +13,7 @@ export function CircularProgress({
   strokeWidth = 14,
   children,
 }: CircularProgressProps) {
+  const { t } = useTranslation();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const safePercent = percent == null ? 0 : Math.max(0, Math.min(100, percent));
@@ -25,7 +28,9 @@ export function CircularProgress({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={
-        percent == null ? 'No target set' : `${Math.round(safePercent)} percent of target`
+        percent == null
+          ? t('a11y.noTargetSet')
+          : t('a11y.percentOfTarget', { percent: Math.round(safePercent) })
       }
     >
       <svg width={size} height={size} className="-rotate-90">

@@ -1,46 +1,46 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function ChooseActivityPage() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold">
-          What would you like to practise today?
-        </h1>
+        <h1 className="font-display text-2xl font-semibold">{t('choose.heading')}</h1>
         <Link to="/benefits" className="mt-1 inline-block text-sm underline underline-offset-2">
-          Not sure? See the benefits of chanting and affirmations
+          {t('choose.benefitsLink')}
         </Link>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <ActivityCard
-          title="Chant or Prayer"
-          description="Repeat a sacred name, mantra, prayer, simran or dhikr."
+          title={t('choose.chantTitle')}
+          description={t('choose.chantDescription')}
           to="/chant"
-          buttonLabel="Choose Chant or Prayer"
+          buttonLabel={t('choose.chantButton')}
         />
         <ActivityCard
-          title="Positive Affirmation"
-          description="Repeat positive words to build peace, gratitude and confidence."
+          title={t('choose.affirmationTitle')}
+          description={t('choose.affirmationDescription')}
           to="/affirmation"
-          buttonLabel="Choose an Affirmation"
+          buttonLabel={t('choose.affirmationButton')}
         />
         <ActivityCard
-          title="Children's Affirmations"
-          description="Calm, confidence-building affirmations for exams and everyday life."
+          title={t('choose.childrenTitle')}
+          description={t('choose.childrenDescription')}
           to="/affirmation/children"
-          buttonLabel="Choose a Children's Affirmation"
+          buttonLabel={t('choose.childrenButton')}
         />
         <ActivityCard
-          title="Parents' Affirmations"
-          description="Supportive affirmations for patient, pressure-free parenting."
+          title={t('choose.parentsTitle')}
+          description={t('choose.parentsDescription')}
           to="/affirmation/parents"
-          buttonLabel="Choose a Parents' Affirmation"
+          buttonLabel={t('choose.parentsButton')}
         />
         <ActivityCard
-          title="Work & Professional Affirmations"
-          description="Choose your profession to see relevant affirmations, or write your own."
+          title={t('choose.professionalTitle')}
+          description={t('choose.professionalDescription')}
           to="/affirmation/professional"
-          buttonLabel="Choose Your Profession"
+          buttonLabel={t('choose.professionalButton')}
         />
       </div>
     </div>

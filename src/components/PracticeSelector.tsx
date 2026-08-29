@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppData } from '@/state/AppDataContext';
 import { resolveRecentSelections } from '@/lib/recent';
 import { practiceKey } from '@/lib/practice';
+import { localizedOptionTitle } from '@/lib/practiceLocalization';
 import { TargetPicker } from './TargetPicker';
 import type {
   PracticeCategory,
@@ -11,33 +13,39 @@ import type {
   PracticeSelection,
   RepetitionTarget,
 } from '@/lib/types';
-import { TRADITION_LABELS } from '@/data/chants';
 
 interface PracticeSelectorProps {
   category: PracticeCategory;
-  heading: string;
-  supportingText: string;
-  customLabel: string;
-  customPlaceholder: string;
-  privacyText: string;
+  /** i18next keys — resolved here so every call site just names its copy. */
+  headingKey: string;
+  supportingTextKey: string;
+  customLabelKey: string;
+  customPlaceholderKey: string;
+  privacyTextKey: string;
   options: PracticeOption[];
   featuredIds?: string[];
   showTraditionFilter?: boolean;
-  contentNote?: string;
+  contentNoteKey?: string;
+  /** Interpolation values for headingKey/supportingTextKey, if needed. */
+  headingValues?: Record<string, string>;
+  supportingTextValues?: Record<string, string>;
 }
 
 export function PracticeSelector({
   category,
-  heading,
-  supportingText,
-  customLabel,
-  customPlaceholder,
-  privacyText,
+  headingKey,
+  supportingTextKey,
+  customLabelKey,
+  customPlaceholderKey,
+  privacyTextKey,
   options,
   featuredIds,
   showTraditionFilter = false,
-  contentNote,
+  contentNoteKey,
+  headingValues,
+  supportingTextValues,
 }: PracticeSelectorProps) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { activeProfile, dispatch } = useAppData();
   const [search, setSearch] = useState('');
@@ -47,6 +55,13 @@ export function PracticeSelector({
   const [selection, setSelection] = useState<PracticeSelection | null>(null);
   const [target, setTarget] = useState<RepetitionTarget>(null);
   const [mode, setMode] = useState<PracticeMode>('tap');
+
+  const heading = t(headingKey, headingValues);
+  const supportingText = t(supportingTextKey, supportingTextValues);
+  const customLabel = t(customLabelKey);
+  const customPlaceholder = t(customPlaceholderKey);
+  const privacyText = t(privacyTextKey);
+  const contentNote = contentNoteKey ? t(contentNoteKey) : undefined;
 
   const traditions = useMemo(() => {
     if (!showTraditionFilter) return [];
@@ -69,23 +84,26 @@ export function PracticeSelector({
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
-        (o) => o.title.toLowerCase().includes(q) || o.script?.toLowerCase().includes(q),
+        (o) =>
+          o.title.toLowerCase().includes(q) ||
+          o.script?.toLowerCase().includes(q) ||
+          localizedOptionTitle(o, i18n.language).toLowerCase().includes(q),
       );
     }
     return list;
-  }, [options, browseAll, featuredIds, tradition, search]);
+  }, [options, browseAll, featuredIds, tradition, search, i18n.language]);
 
   const recents = useMemo(
-    () => resolveRecentSelections(activeProfile, category, 5),
-    [activeProfile, category],
+    () => resolveRecentSelections(activeProfile, category, i18n.language, 5),
+    [activeProfile, category, i18n.language],
   );
 
   function chooseOption(option: PracticeOption) {
     setSelection({
       category,
       optionId: option.id,
-      displayText: option.title,
-      displayScript: option.script,
+      displayText: localizedOptionTitle(option, i18n.language),
+      displayScript: option.category === 'chant' ? option.script : undefined,
     });
   }
 
@@ -100,6 +118,7 @@ export function PracticeSelector({
     // The reducer generates the id internally; find it back is unnecessary —
     // we key off displayText for custom selections that were just entered
     // by leaving customId unset, which the practice key derives from text.
+    // Custom text is the user's own words and is never translated.
     setSelection({ category, displayText: text });
   }
 
@@ -120,12 +139,12 @@ export function PracticeSelector({
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <label htmlFor="practice-search" className="sr-only">
-          Search
+          {t('practiceSelector.searchLabel')}
         </label>
         <input
           id="practice-search"
           type="search"
-          placeholder="Search"
+          placeholder={t('practiceSelector.searchLabel')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="min-h-11 flex-1 rounded-xl border border-[color:var(--border)] bg-[color:var(--bg-elevated)] px-4 py-2 text-base"
@@ -136,24 +155,28 @@ export function PracticeSelector({
             onClick={() => setBrowseAll((v) => !v)}
             className="min-h-11 rounded-full border border-[color:var(--border)] px-4 py-2 text-sm font-medium"
           >
-            {browseAll ? 'Show Suggested' : 'Browse All'}
+            {browseAll ? t('practiceSelector.showSuggested') : t('practiceSelector.browseAll')}
           </button>
         )}
       </div>
 
       {showTraditionFilter && (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by tradition">
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={t('practiceSelector.filterByTraditionLabel')}
+        >
           <FilterChip
-            label="All"
+            label={t('practiceSelector.allTraditions')}
             selected={tradition === 'all'}
             onClick={() => setTradition('all')}
           />
-          {traditions.map((t) => (
+          {traditions.map((tr) => (
             <FilterChip
-              key={t}
-              label={TRADITION_LABELS[t] ?? t}
-              selected={tradition === t}
-              onClick={() => setTradition(t)}
+              key={tr}
+              label={t(`traditions.${tr}`, tr)}
+              selected={tradition === tr}
+              onClick={() => setTradition(tr)}
             />
           ))}
         </div>
@@ -161,7 +184,9 @@ export function PracticeSelector({
 
       {recents.length > 0 && (
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-[color:var(--fg-muted)]">Recently used</h2>
+          <h2 className="mb-2 text-sm font-semibold text-[color:var(--fg-muted)]">
+            {t('practiceSelector.recentlyUsed')}
+          </h2>
           <div className="flex flex-wrap gap-2">
             {recents.map((r, i) => (
               <button
@@ -190,8 +215,8 @@ export function PracticeSelector({
                   : 'border-[color:var(--border)] bg-[color:var(--bg-elevated)]'
               }`}
             >
-              <span className="font-medium">{option.title}</span>
-              {option.script && (
+              <span className="font-medium">{localizedOptionTitle(option, i18n.language)}</span>
+              {option.category === 'chant' && option.script && (
                 <span lang={option.scriptLang} className="text-sm text-[color:var(--fg-muted)]">
                   {option.script}
                 </span>
@@ -222,29 +247,29 @@ export function PracticeSelector({
           disabled={!customText.trim()}
           className="mt-3 min-h-11 rounded-full bg-[color:var(--accent)] px-5 py-2.5 text-sm font-semibold text-[color:var(--accent-contrast)] disabled:opacity-50"
         >
-          Use This Text
+          {t('practiceSelector.useThisText')}
         </button>
       </div>
 
       {selection && (
         <div className="card-surface sticky bottom-4 flex flex-col gap-4 rounded-2xl p-5">
           <div>
-            <p className="text-sm text-[color:var(--fg-muted)]">Selected</p>
+            <p className="text-sm text-[color:var(--fg-muted)]">{t('practiceSelector.selected')}</p>
             <p className="font-display text-lg font-semibold">{selection.displayText}</p>
           </div>
           <TargetPicker value={target} onChange={setTarget} />
           <fieldset>
             <legend className="mb-2 text-sm font-medium text-[color:var(--fg-muted)]">
-              How will you count?
+              {t('practiceSelector.howWillYouCount')}
             </legend>
             <div className="flex gap-2">
               <ModeButton
-                label="Tap Mode"
+                label={t('practiceSelector.tapMode')}
                 selected={mode === 'tap'}
                 onClick={() => setMode('tap')}
               />
               <ModeButton
-                label="Voice Mode (Beta)"
+                label={t('practiceSelector.voiceModeBeta')}
                 selected={mode === 'voice'}
                 onClick={() => setMode('voice')}
               />
@@ -255,7 +280,7 @@ export function PracticeSelector({
             onClick={begin}
             className="min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)]"
           >
-            Begin Practice
+            {t('practiceSelector.beginPractice')}
           </button>
         </div>
       )}

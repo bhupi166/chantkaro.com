@@ -8,7 +8,9 @@ export function formatCount(
   locales: string | string[] = navigator?.language,
 ): string {
   const localeList = Array.isArray(locales) ? locales : [locales].filter(Boolean);
-  const isIndianLocale = localeList.some((l) => /^[a-z]{2,3}-in$/i.test(l) || /^hi\b/i.test(l));
+  const isIndianLocale = localeList.some(
+    (l) => /^[a-z]{2,3}-in$/i.test(l) || /^(hi|pa)\b/i.test(l),
+  );
   const locale = isIndianLocale ? 'en-IN' : localeList[0] || 'en-US';
   try {
     return new Intl.NumberFormat(locale).format(value);
