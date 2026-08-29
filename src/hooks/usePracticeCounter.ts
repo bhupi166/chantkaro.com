@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useAppData } from '@/state/AppDataContext';
 import { globalTotalsClient } from '@/lib/globalTotalsClient';
+import { vibrate } from '@/lib/vibration';
 import {
   createEmptyStats,
   isTargetReached,
@@ -24,13 +25,7 @@ export function usePracticeCounter(selection: PracticeSelection) {
     // personal count above; it is never retracted by a later Undo, since a
     // sent increment cannot be traced back to this device.
     globalTotalsClient.record(selection.category, activeProfile.contributeToGlobalTotals, mode);
-    if (activeProfile.vibrationEnabled && 'vibrate' in navigator) {
-      try {
-        navigator.vibrate?.(12);
-      } catch {
-        /* vibration not permitted in this context */
-      }
-    }
+    if (activeProfile.vibrationEnabled) vibrate(12);
   }, [
     dispatch,
     key,

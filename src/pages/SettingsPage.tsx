@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppData } from '@/state/AppDataContext';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { clearAppData, exportAppDataJson, importAppDataJson } from '@/lib/storage';
+import { supportsVibration } from '@/lib/vibration';
 import type { ThemePreference, UiLanguage } from '@/lib/types';
 
 export function SettingsPage() {
@@ -122,13 +123,15 @@ export function SettingsPage() {
       </Section>
 
       <Section title={t('settings.practiceFeelTitle')}>
-        <ToggleRow
-          label={t('settings.vibrationLabel')}
-          checked={activeProfile.vibrationEnabled}
-          onChange={(checked) =>
-            dispatch({ type: 'UPDATE_SETTINGS', patch: { vibrationEnabled: checked } })
-          }
-        />
+        {supportsVibration() && (
+          <ToggleRow
+            label={t('settings.vibrationLabel')}
+            checked={activeProfile.vibrationEnabled}
+            onChange={(checked) =>
+              dispatch({ type: 'UPDATE_SETTINGS', patch: { vibrationEnabled: checked } })
+            }
+          />
+        )}
         <ToggleRow
           label={t('settings.soundLabel')}
           checked={activeProfile.soundEnabled}
