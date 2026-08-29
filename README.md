@@ -179,12 +179,13 @@ Voice Mode uses the (still non-standard) Web Speech `SpeechRecognition` API:
 
 ## 10. Suggested phrases requiring final expert/community review
 
-**Jain tradition**: no suggested Jain phrases are currently included. An initial set (Namo
-Arihantanam, Namo Siddhanam, Namokar Mantra) was drafted but could not be confidently verified, so it
-was removed rather than published unreviewed — sacred text left unverified is worse than none. Add a
-reviewed set to the `CHANTS` array in `src/data/chants.ts` (tradition: `'jain'`) once a subject-matter
-reviewer has checked wording and transliteration; the `needsReview: true` flag on a `PracticeOption`
-exists for exactly this — flagging something shown to users as still pending final sign-off.
+**Jain tradition**: only the Namokar (Navkar) Mantra is included, cross-checked against Wikipedia's
+"Namokar Mantra" article and jaina.org's published text (both agree on wording). No other Jain
+suggestions are included by design — users can enter any other Jain prayer via "Enter your own chant
+or prayer," which stays entirely on-device. Add more reviewed Jain entries to the `CHANTS` array in
+`src/data/chants.ts` (tradition: `'jain'`) as they're verified; the `needsReview: true` flag on a
+`PracticeOption` exists for exactly this — flagging something shown to users as still pending final
+sign-off.
 
 More broadly, every suggested chant/prayer/dhikr/affirmation in `src/data/chants.ts` and
 `src/data/affirmations.ts` is offered for convenient counting only ("Suggested phrases are provided

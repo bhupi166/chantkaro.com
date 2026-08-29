@@ -56,7 +56,11 @@ export function PracticeSelector({
 
   const filtered = useMemo(() => {
     let list = options;
-    if (!browseAll && featuredIds) {
+    // The small "Suggested" teaser set only makes sense across all
+    // traditions at once — once someone picks a specific tradition they
+    // clearly want everything in it, not just whichever items happened to
+    // make the teaser cut.
+    if (!browseAll && tradition === 'all' && featuredIds) {
       list = featuredIds
         .map((id) => options.find((o) => o.id === id))
         .filter((o): o is PracticeOption => !!o);

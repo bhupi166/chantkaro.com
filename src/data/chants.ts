@@ -147,9 +147,20 @@ export const CHANTS: PracticeOption[] = [
   },
 
   // ---- Jain ----
-  // Jain suggestions are intentionally omitted for now: the entries drafted
-  // here couldn't be confidently verified, and unverified sacred text is
-  // worse than none. Add them back via this same data file once reviewed.
+  // Only the Namokar (Navkar) Mantra is included — it is the one Jain text
+  // whose wording is essentially universal across sects, cross-checked
+  // against Wikipedia's "Namokar Mantra" article and jaina.org's own
+  // published text (both agree). Other Jain suggestions are deliberately
+  // left out rather than guessed at; add more here once reviewed.
+  {
+    id: 'jain-namokar-mantra',
+    category: 'chant',
+    tradition: 'jain',
+    title: 'Namokar Mantra (Navkar Mantra)',
+    script:
+      'णमो अरिहंताणं। णमो सिद्धाणं। णमो आयरियाणं। णमो उवज्झायाणं। णमो लोए सव्व साहूणं। एसो पंच णमोक्कारो, सव्व पावप्पणासणो। मंगलाणं च सव्वेसिं, पढमं हवइ मंगलं॥',
+    scriptLang: 'hi',
+  },
 
   // ---- Islamic Dhikr/Zikr ----
   {
