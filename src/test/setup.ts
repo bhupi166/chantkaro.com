@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import '@/i18n';
+import 'fake-indexeddb/auto';
 
 // jsdom does not implement matchMedia; provide a stable no-op mock so
 // components that check prefers-color-scheme / prefers-reduced-motion don't

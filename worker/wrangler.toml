@@ -18,6 +18,16 @@ database_id = "9a76d7dd-a69c-4664-90dc-5cbc1c64f5a7"
 pattern = "api.chantkaro.com"
 custom_domain = true
 
-# Optional: run scheduled cleanup of expired rate-limit buckets.
+# Hourly: prunes expired rate-limit/idempotency rows and re-evaluates the
+# adaptive sync mode against this month's batch volume (src/syncConfig.ts).
 [triggers]
 crons = ["0 * * * *"]
+
+# Hard CPU-time cap per invocation (ms), deliberately well under the
+# platform default — every handler here is a handful of small D1 queries,
+# so a runaway request should fail fast rather than run up CPU-time
+# billing on the paid plan. Requires ADMIN_TOKEN to be set as a secret:
+#   wrangler secret put ADMIN_TOKEN
+# Never put its value in this file, .dev.vars, or any frontend code.
+[limits]
+cpu_ms = 50

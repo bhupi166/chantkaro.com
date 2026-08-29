@@ -94,6 +94,32 @@ describe('appDataReducer TAP/UNDO', () => {
     expect(activeStats(state, affKey).sessionCount).toBe(2);
   });
 
+  it('keeps at most 365 days of detailed daily history, without touching lifetime totals', () => {
+    let state = createDataWithTaps(1);
+    const profileId = state.activeProfileId;
+
+    // Seed 400 days of synthetic history directly (dispatching 400 real
+    // taps across 400 days would be impractically slow for a unit test).
+    const syntheticLog = Array.from({ length: 400 }, (_, i) => ({
+      date: `2020-01-${String((i % 28) + 1).padStart(2, '0')}`,
+      chantCount: 1,
+      affirmationCount: 0,
+    }));
+    state = {
+      ...state,
+      profiles: state.profiles.map((p) =>
+        p.id === profileId ? { ...p, dailyLog: syntheticLog } : p,
+      ),
+    };
+
+    const lifetimeBefore = activeStats(state).lifetimeCount;
+    state = appDataReducer(state, { type: 'TAP', key, category: 'chant' });
+
+    const profile = state.profiles.find((p) => p.id === profileId)!;
+    expect(profile.dailyLog.length).toBeLessThanOrEqual(365);
+    expect(activeStats(state).lifetimeCount).toBe(lifetimeBefore + 1); // never trimmed
+  });
+
   it('tracks chant and affirmation totals separately in the daily log', () => {
     let state = createDefaultAppData();
     state = appDataReducer(state, { type: 'TAP', key, category: 'chant' });

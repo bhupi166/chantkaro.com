@@ -38,10 +38,13 @@ export function PrivacyPage() {
       <p>
         <Trans i18nKey="privacy.contactBody">
           {'Questions about this policy can be sent to '}
-          <a className="underline" href="mailto:privacy@chantkaro.com">
-            privacy@chantkaro.com
+          <a
+            className="underline"
+            href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Privacy%20Policy%20Question"
+          >
+            bhupi166@gmail.com
           </a>
-          {' [PLACEHOLDER — replace before production].'}
+          {'.'}
         </Trans>
       </p>
     </article>

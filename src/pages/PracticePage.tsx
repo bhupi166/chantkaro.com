@@ -33,7 +33,14 @@ export function PracticePage() {
 
   useEffect(() => {
     const onVisibility = () => {
-      if (document.visibilityState === 'hidden') globalTotalsClient.flushPendingNow();
+      if (document.visibilityState === 'hidden') {
+        globalTotalsClient.flushPendingNow();
+        // A plain fetch() started here may be cancelled mid-flight when the
+        // page actually unloads — sendBeacon is built to survive that. The
+        // persisted queue (IndexedDB) remains the source of truth either
+        // way; this is only a best-effort head start.
+        globalTotalsClient.flushViaBeacon();
+      }
     };
     window.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('pagehide', onVisibility);

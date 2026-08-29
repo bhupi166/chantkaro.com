@@ -35,10 +35,13 @@ export function TermsPage() {
       <p>
         <Trans i18nKey="terms.contactBody">
           {'Questions can be sent to '}
-          <a className="underline" href="mailto:hello@chantkaro.com">
-            hello@chantkaro.com
+          <a
+            className="underline"
+            href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Terms%20Question"
+          >
+            bhupi166@gmail.com
           </a>
-          {' [PLACEHOLDER — replace before production].'}
+          {'.'}
         </Trans>
       </p>
     </article>

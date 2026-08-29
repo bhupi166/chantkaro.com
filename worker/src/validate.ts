@@ -1,4 +1,7 @@
-export const MAX_BATCH_AMOUNT = 500;
+// Must comfortably exceed the largest server-configured batch threshold
+// (cost-protection mode submits every 1000 reps — see syncConfig.ts) with
+// headroom for a session that ran a while before its last flush.
+export const MAX_BATCH_AMOUNT = 2000;
 export const MAX_BODY_BYTES = 2048;
 
 export type Category = 'chant' | 'affirmation';

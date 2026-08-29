@@ -1,4 +1,8 @@
-# Copy to .dev.vars for local `wrangler dev`. No secrets are required for
-# this API — it's a public, unauthenticated aggregate-counter endpoint — but
-# this file is the place to add any in the future without committing them.
+# Copy to .dev.vars for local `wrangler dev`. Never commit the real file.
 ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+
+# Shared secret for the two admin-only endpoints (GET /api/admin/usage,
+# PATCH /api/admin/config). Pick your own long random value for local dev.
+# In production this is set via `wrangler secret put ADMIN_TOKEN` instead —
+# never in wrangler.toml, .dev.vars committed to git, or any frontend code.
+ADMIN_TOKEN=replace-with-a-long-random-value-for-local-dev-only

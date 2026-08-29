@@ -49,7 +49,9 @@
   },
   "totals": {
     "heading": "Together, we are creating positive energy—one repetition at a time.",
+    "nearRealTime": "Totals update near real-time, not instantly.",
     "unavailable": "Global totals are temporarily unavailable. Your personal practice keeps working normally.",
+    "syncPausedMessage": "Your personal count is safe on this device. Global community synchronization is temporarily delayed to maintain reliable and sustainable service.",
     "chantsAndPrayers": "Chants & Prayers",
     "positiveAffirmations": "Positive Affirmations",
     "totalPositiveRepetitions": "Total Positive Repetitions"
@@ -252,7 +254,7 @@
   },
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: [PLACEHOLDER — set on launch date]",
+    "lastUpdated": "Last updated: August 29, 2026",
     "intro": "Chant Karo is built so that your practice can stay private. This page explains, in plain language, what stays on your device and what — if anything — reaches our server.",
     "noAccountHeading": "No account is required",
     "noAccountBody": "You never need to log in, register, or provide an email address, phone number or any personal detail to use Chant Karo.",
@@ -271,11 +273,11 @@
     "independenceHeading": "Independence",
     "independenceBody": "Chant Karo is an independent project. It is not affiliated with, endorsed by, or operated on behalf of any religious organization, unless explicitly stated otherwise.",
     "contactHeading": "Contact",
-    "contactBody": "Questions about this policy can be sent to <1>privacy@chantkaro.com</1> [PLACEHOLDER — replace before production]."
+    "contactBody": "Questions about this policy can be sent to <1>bhupi166@gmail.com</1>."
   },
   "terms": {
     "title": "Terms of Use",
-    "lastUpdated": "Last updated: [PLACEHOLDER — set on launch date]",
+    "lastUpdated": "Last updated: August 29, 2026",
     "intro": "By using Chant Karo, you agree to the following terms.",
     "whatItIsHeading": "What Chant Karo is",
     "whatItIsBody": "Chant Karo is a free counting and personal-practice tool for chants, prayers, simran, dhikr and positive affirmations. It helps you count repetitions by tap or voice and keep a private record of your practice.",
@@ -292,7 +294,7 @@
     "changesHeading": "Changes",
     "changesBody": "We may update these terms from time to time. Continued use after a change means you accept the updated terms.",
     "contactHeading": "Contact",
-    "contactBody": "Questions can be sent to <1>hello@chantkaro.com</1> [PLACEHOLDER — replace before production]."
+    "contactBody": "Questions can be sent to <1>bhupi166@gmail.com</1>."
   },
   "about": {
     "title": "About Chant Karo",
@@ -307,8 +309,7 @@
     "intro": "We welcome questions, corrections to suggested phrases, and accessibility feedback.",
     "generalLabel": "General",
     "privacyLabel": "Privacy",
-    "contentLabel": "Content corrections",
-    "placeholder": "[PLACEHOLDER]"
+    "contentLabel": "Content corrections"
   },
   "benefits": {
     "title": "Benefits of Chanting & Affirmations",

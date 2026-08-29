@@ -4,16 +4,22 @@ import { formatCount } from '@/lib/format';
 
 export function GlobalTotalsPanel() {
   const { t } = useTranslation();
-  const { totals, status } = useGlobalTotals();
+  const { totals, status, syncPaused } = useGlobalTotals();
 
   return (
     <section aria-labelledby="global-totals-heading" className="card-surface rounded-2xl p-6">
       <p id="global-totals-heading" className="font-display text-lg font-semibold">
         {t('totals.heading')}
       </p>
+      <p className="mt-1 text-xs text-[color:var(--fg-muted)]">{t('totals.nearRealTime')}</p>
       {status === 'unavailable' && (
         <p className="mt-3 text-sm text-[color:var(--fg-muted)]" role="status">
           {t('totals.unavailable')}
+        </p>
+      )}
+      {syncPaused && (
+        <p className="mt-3 rounded-xl bg-[color:var(--bg)] p-3 text-sm text-[color:var(--fg-muted)]" role="status">
+          {t('totals.syncPausedMessage')}
         </p>
       )}
       <dl className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">

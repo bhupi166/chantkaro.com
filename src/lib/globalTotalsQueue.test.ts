@@ -1,17 +1,24 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   addPending,
+  BASE_RETRY_DELAY_MS,
+  canRetryNow,
   flushPendingToQueue,
+  loadQueueState,
+  MAX_RETRY_DELAY_MS,
+  recordSyncFailure,
+  recordSyncSuccess,
   removeFromQueue,
+  saveQueueState,
   totalPending,
 } from './globalTotalsQueue';
 import type { QueueState } from './globalTotalsQueue';
 
 function empty(): QueueState {
-  return { pending: { chant: 0, affirmation: 0 }, queue: [] };
+  return { pending: { chant: 0, affirmation: 0 }, queue: [], consecutiveFailures: 0, nextRetryAt: 0 };
 }
 
-describe('globalTotalsQueue', () => {
+describe('globalTotalsQueue — pure batching logic', () => {
   it('accumulates pending increments without creating a queue entry yet', () => {
     let state = empty();
     state = addPending(state, 'chant', 1);
@@ -53,5 +60,70 @@ describe('globalTotalsQueue', () => {
     const key = state.queue[0].idempotencyKey;
     state = removeFromQueue(state, key);
     expect(state.queue).toHaveLength(0);
+  });
+});
+
+describe('exponential backoff', () => {
+  it('doubles the delay on each consecutive failure, capped at MAX_RETRY_DELAY_MS', () => {
+    const now = 1_000_000;
+    let state = empty();
+    state = recordSyncFailure(state, now);
+    expect(state.nextRetryAt - now).toBe(BASE_RETRY_DELAY_MS);
+
+    state = recordSyncFailure(state, now);
+    expect(state.nextRetryAt - now).toBe(BASE_RETRY_DELAY_MS * 2);
+
+    state = recordSyncFailure(state, now);
+    expect(state.nextRetryAt - now).toBe(BASE_RETRY_DELAY_MS * 4);
+
+    // Enough consecutive failures to blow past the cap.
+    for (let i = 0; i < 10; i++) state = recordSyncFailure(state, now);
+    expect(state.nextRetryAt - now).toBe(MAX_RETRY_DELAY_MS);
+  });
+
+  it('resets to zero delay on the next success', () => {
+    let state = recordSyncFailure(recordSyncFailure(empty()));
+    expect(state.consecutiveFailures).toBe(2);
+    state = recordSyncSuccess(state);
+    expect(state.consecutiveFailures).toBe(0);
+    expect(state.nextRetryAt).toBe(0);
+  });
+
+  it('canRetryNow respects the backoff window and does not retry aggressively', () => {
+    const now = 1_000_000;
+    const state = recordSyncFailure(empty(), now);
+    expect(canRetryNow(state, now)).toBe(false);
+    expect(canRetryNow(state, now + BASE_RETRY_DELAY_MS - 1)).toBe(false);
+    expect(canRetryNow(state, now + BASE_RETRY_DELAY_MS)).toBe(true);
+  });
+
+  it('a fresh state can always retry immediately', () => {
+    expect(canRetryNow(empty())).toBe(true);
+  });
+});
+
+describe('IndexedDB persistence', () => {
+  beforeEach(async () => {
+    // Each test gets a clean slate; loadQueueState() returns an empty
+    // state by default when nothing has been saved yet.
+    await saveQueueState(empty());
+  });
+
+  it('round-trips a saved state through IndexedDB', async () => {
+    let state = addPending(empty(), 'chant', 3);
+    state = flushPendingToQueue(state);
+    await saveQueueState(state);
+
+    const reloaded = await loadQueueState();
+    expect(reloaded.queue).toHaveLength(1);
+    expect(reloaded.queue[0].amount).toBe(3);
+  });
+
+  it('loadQueueState returns a valid empty state when nothing was ever saved', async () => {
+    // Use a state shape check rather than clearing the DB (no delete API
+    // exposed here) — an empty, freshly-saved state should read back clean.
+    const reloaded = await loadQueueState();
+    expect(reloaded.pending).toEqual({ chant: 0, affirmation: 0 });
+    expect(Array.isArray(reloaded.queue)).toBe(true);
   });
 });

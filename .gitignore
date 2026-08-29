@@ -22,6 +22,11 @@ test-results
 !.env.production
 worker/.wrangler
 worker/.dev.vars
+worker/bundled
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
 
 # Editor directories and files
 .vscode/*

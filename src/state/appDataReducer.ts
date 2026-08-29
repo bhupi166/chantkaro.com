@@ -68,9 +68,11 @@ function bumpDailyLog(
     else entry.affirmationCount = Math.max(0, entry.affirmationCount + delta);
     log[idx] = entry;
   }
-  // Keep a rolling ~60 days so the stats screen never has to scan an
-  // unbounded local history.
-  const trimmed = log.slice(-60);
+  // Keep a rolling 365 days of detailed daily history — lifetime totals
+  // (ProfileData.stats[key].lifetimeCount) are separate fields and are
+  // never trimmed, so this only bounds the day-by-day breakdown, not the
+  // all-time counts.
+  const trimmed = log.slice(-365);
   return { ...profile, dailyLog: trimmed };
 }
 

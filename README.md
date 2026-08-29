@@ -109,10 +109,14 @@ npm run db:migrate:remote
 ```bash
 cd worker
 # set your real domain(s) in wrangler.toml [vars] ALLOWED_ORIGINS
+npx wrangler secret put ADMIN_TOKEN   # a long random value — never commit it, never put it in wrangler.toml
 npx wrangler deploy
 ```
 
-Note the deployed Worker URL (e.g. `https://chantkaro-api.<subdomain>.workers.dev`).
+Note the deployed Worker URL (e.g. `https://chantkaro-api.<subdomain>.workers.dev`). `ADMIN_TOKEN`
+gates the two admin-only endpoints (`GET /api/admin/usage`, `PATCH /api/admin/config` — see §13.4);
+generate it with something like `openssl rand -hex 32`, store it in a password manager, and rotate it
+with `wrangler secret put ADMIN_TOKEN` again if it's ever exposed.
 
 ### 6.3 Frontend (Cloudflare Pages)
 
@@ -127,8 +131,44 @@ Note the deployed Worker URL (e.g. `https://chantkaro-api.<subdomain>.workers.de
 4. Configure your custom domain (`chantkaro.com`) in Pages, and update `ALLOWED_ORIGINS` in
    `worker/wrangler.toml` to match exactly, then redeploy the Worker.
 
-Both the Worker and Pages are designed to fit comfortably in Cloudflare's free tier for
-moderate traffic.
+The Worker requires the **lowest Workers Paid plan** ($5/mo) rather than the free plan — see §13 for
+why (cron-triggered `scheduled()` maintenance and D1 usage need it) — but is designed to stay on that
+single flat fee. Never upgrade to a higher plan, and never enable paid Bot Management, paid
+analytics/logging add-ons, or paid speech-recognition services without explicit administrator
+approval; none of those are required for Chant Karo to function.
+
+### 6.4 Before every deploy: size and budget checklist
+
+```bash
+npm run build                # tsc -b && vite build → dist/
+npm run check:deploy-size    # fails (non-zero exit) if dist/ or the Worker bundle are oversized
+```
+
+`scripts/check-deploy-size.mjs` reports the `dist/` output size and file count, flags any asset over
+5 MiB, fails if any asset exceeds Cloudflare's 25 MiB static-asset limit, runs
+`wrangler deploy --outdir bundled --dry-run` to measure the Worker's compressed bundle size, and fails
+if that exceeds the Workers Paid plan's 10 MiB compressed script limit. Wire it into CI as a required
+step before any deploy job. It always cleans up the throwaway `worker/bundled/` dry-run output
+(also gitignored, in case a run is interrupted).
+
+Do **not** deploy the working directory as-is via a generic file copy — it also contains
+`node_modules/`, `.git/`, test artifacts and dev caches (several hundred MB), none of which Cloudflare
+needs. `wrangler deploy` and Cloudflare Pages builds both already exclude these correctly on their own
+(they build from source, not from a directory snapshot), and `.gitignore` keeps them out of the
+repository submitted for a Pages build in the first place.
+
+### 6.5 Manual, one-time dashboard steps (not automatable via Wrangler)
+
+- **Billing/usage alerts**: Cloudflare dashboard → Billing → Notifications — add alerts at
+  approximately ₹400 and ₹500 of monthly spend, so an administrator is warned well before the ₹600–700
+  target is at risk.
+- **Zone-level Cache Rule** (optional but recommended at higher traffic): the Worker already caches
+  `GET /api/totals` and `GET /api/config` at the edge via the Cache API (`caches.default`), which saves
+  D1 reads and CPU time — but a Worker invocation still happens (and counts against the request quota)
+  even on a cache hit. To also avoid counting those as Worker *requests*, add a dashboard Cache Rule
+  (Rules → Cache Rules) matching `/api/totals` and `/api/config` with "Eligible for cache" and an edge
+  TTL matching the values in §13.2. This is a zone-level dashboard setting with no Wrangler/API
+  equivalent in this project, so it must be configured manually and isn't part of `wrangler deploy`.
 
 ## 7. Privacy architecture (what goes where)
 
@@ -149,10 +189,8 @@ accepted), and a request-size cap and per-IP-hash rate limit apply. IP addresses
 pruned hourly by the Worker's scheduled handler, so nothing persists as a device fingerprint.
 
 The frontend batches taps client-side (`src/lib/globalTotalsClient.ts` + `globalTotalsQueue.ts`)
-rather than sending one request per repetition, flushing every ~15 repetitions, every 30 seconds, or
-on pause/stop/tab-hide, and queues batches in LocalStorage when offline so they sync exactly once
-when connectivity returns (idempotency keys are `crypto.randomUUID()`, checked server-side, so a
-retried submission is safely ignored rather than double-counted).
+rather than sending one request per repetition — see **§13 Cost model and global synchronization**
+for the full batching, caching and budget-control architecture.
 
 ## 8. Browser support notes — Voice Mode
 
@@ -168,9 +206,11 @@ Voice Mode uses the (still non-standard) Web Speech `SpeechRecognition` API:
 
 ## 9. Placeholders that MUST be replaced before production
 
-- `privacy@chantkaro.com`, `hello@chantkaro.com`, `content@chantkaro.com` — placeholder contact
-  addresses in `src/pages/PrivacyPage.tsx`, `TermsPage.tsx`, `ContactPage.tsx`.
-- "Last updated" dates in `PrivacyPage.tsx` and `TermsPage.tsx`.
+- Contact addresses (`PrivacyPage.tsx`, `TermsPage.tsx`, `ContactPage.tsx`) and the "Last updated"
+  dates (`PrivacyPage.tsx`, `TermsPage.tsx`) are set — all contact mailto links point to
+  `bhupi166@gmail.com` (every mailto link includes a `subject=Chant%20Karo%20-%20…` query parameter so
+  outgoing emails always carry a "Chant Karo" subject), and both "Last updated" dates read
+  August 29, 2026. Revisit both if the contact address or launch date changes.
 - `worker/wrangler.toml` — `database_id` under `[[d1_databases]]`, and `ALLOWED_ORIGINS` under `[vars]`.
 - `https://chantkaro.com/social-preview.png` referenced in `index.html` Open Graph tags — generate and
   upload an actual social preview image (1200×630).
@@ -250,3 +290,165 @@ Devanagari` and `Noto Sans Gurmukhi` as fallbacks, loaded in `index.html`, so bo
   places, e.g. the header nav). `src/pages/HomePage.test.tsx` guards specifically against a `<Trans>`
   child-index bug class (a stray `{' '}` between text and a linked element shifts every following
   index, silently dropping the link — see git history for the concretes).
+
+## 13. Cost model and global synchronization
+
+Chant Karo's global totals ("X people have chanted Y times today") are the only feature that touches
+a server at all. Everything else — counting, targets, history, custom chants, profiles — is entirely
+local to the browser and costs nothing to run. This section explains how the global-totals path is
+designed to stay near a **₹600–700/month** infrastructure budget (excluding domain and taxes) even
+under heavy load, and exactly what happens as usage grows. ₹600 is an operational target, not a
+contractual guarantee — actual Cloudflare pricing/limits can change.
+
+### 13.1 Why one repetition is not one request
+
+The single biggest cost lever is that the client never calls the server per tap. `record()` in
+`src/lib/globalTotalsClient.ts` increments an in-memory/IndexedDB-persisted counter locally on every
+repetition, and only pushes a batch onto the sync queue once the **server-configured batch
+threshold** is reached (100 by default — see §13.3). A batch is also flushed early on
+pause/stop/tab-hide (`flushPendingNow()`, wired into `PracticePage.tsx`'s visibility/pagehide
+handlers) so a partial count is never stranded past a session boundary.
+
+Each queued batch carries a client-generated `crypto.randomUUID()` idempotency key. The Worker
+(`worker/src/index.ts` → `handleIncrement`) inserts that key and applies the increment in a single
+atomic `D1Database.batch()` call; a `PRIMARY KEY` constraint on `idempotency_keys.idempotency_key`
+makes a retried submission of the same batch a no-op (`409`, treated by the client as success) rather
+than a double count. This is what makes retries, `sendBeacon` duplicates, and offline-queue replays
+all safe.
+
+On page unload, a plain `fetch()` can be cancelled by the browser before it completes, so
+`flushViaBeacon()` additionally uses `navigator.sendBeacon` as a best-effort delivery attempt — but
+its return value only means "the browser accepted this for later delivery," never "the server
+processed it," so the client **never** removes a batch from its local queue on the strength of a
+beacon alone. Only a real server response (via the next `sync()` cycle) clears a queue entry — so at
+worst a beacon delivery is *redundant* with a later retry (safely deduplicated by its idempotency
+key), never *lost*.
+
+If a sync attempt fails (offline, server error), the batch stays in the IndexedDB-backed queue and
+the client backs off with capped exponential delay (`BASE_RETRY_DELAY_MS = 30s`, doubling,
+`MAX_RETRY_DELAY_MS = 30min`, in `src/lib/globalTotalsQueue.ts`) rather than retrying continuously —
+so a burst of visitors going offline together never turns into a retry storm against the Worker the
+moment connectivity returns.
+
+### 13.2 Global-totals caching
+
+`GET /api/totals` and `GET /api/config` are both served through `withEdgeCache()`
+(`worker/src/index.ts`), which reads/writes Cloudflare's `caches.default` edge cache with a
+`Cache-Control: public, max-age=…` matching the current mode's refresh interval. A cache hit never
+touches D1. There is no WebSocket or live connection anywhere in this app — totals are explicitly
+"near real-time" (`totals.nearRealTime` in every locale), refreshed on a timer
+(`src/hooks/useGlobalTotals.ts`, adaptive recursive `setTimeout` using the server-provided
+`refreshHintSeconds`), not pushed instantly. An in-Worker cache hit still counts as one Worker
+*request*; eliminating that too requires a zone-level Cache Rule (§6.5), which isn't automatable via
+Wrangler and must be configured once in the dashboard.
+
+### 13.3 Adaptive cost-control modes
+
+The Worker exposes its current operating mode via the cached `GET /api/config` endpoint
+(`worker/src/syncConfig.ts`), and the client reads it (`src/lib/syncConfigClient.ts`, 5-minute
+throttle, localStorage-cached, never blocks or throws) to drive both its batch threshold and its
+totals-refresh interval — no client redeploy needed to change either.
+
+| Mode              | Batch threshold | Totals refresh | Auto-escalates when this month's batches exceed |
+| ----------------- | --------------: | --------------: | ------------------------------------------------ |
+| `normal`           | 100              | 45s              | —                                                 |
+| `elevated`         | 250              | 210s (3.5min)    | 500,000                                          |
+| `high`             | 500              | 210s (3.5min)    | 2,000,000                                         |
+| `cost-protection`  | 1000             | 750s (12.5min)   | 5,000,000                                         |
+
+The Worker's `scheduled()` cron handler (`worker/wrangler.toml` trigger) recomputes this monthly
+batch count and calls `nextAutoMode()` once per run; escalation is one-directional (it only steps
+up, never silently back down mid-month) and only applies when `autoManaged` is true. An administrator
+can always override any field manually via `PATCH /api/admin/config` (§13.4), including forcing a
+mode, disabling `autoManaged`, or setting `submissionsPaused` directly — that patch also invalidates
+the cached `/api/config` response immediately, rather than waiting out its TTL.
+
+### 13.4 Admin usage endpoint
+
+Two endpoints require a Bearer token matching the `ADMIN_TOKEN` Worker secret
+(`worker/src/adminAuth.ts`, timing-safe comparison, fails closed if the secret isn't set):
+
+```bash
+# Technical usage snapshot — row counts, this month's batch count, current
+# config, and a rough (non-authoritative) D1 storage estimate. No personal
+# data of any kind — see worker/src/db.ts getUsageSnapshot().
+curl -H "Authorization: Bearer $ADMIN_TOKEN" https://<worker-url>/api/admin/usage
+
+# Manually override any subset of the sync config.
+curl -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" -H "content-type: application/json" \
+  -d '{"mode":"high","autoManaged":false}' https://<worker-url>/api/admin/config
+```
+
+For authoritative request counts, CPU time, and D1 storage, use the Cloudflare dashboard (Workers &
+Pages → your Worker → Metrics; D1 → your database → Metrics) — the admin endpoint above is a cheap,
+private, technical-only supplement, not a replacement for Cloudflare's own billing-accurate numbers.
+
+### 13.5 Hard budget protection
+
+If usage is trending to exceed the ~₹600–700 target, the intended operator response — via
+`PATCH /api/admin/config` or the automatic escalation in §13.3 — is to raise the batch threshold,
+slow the totals-refresh interval, and if genuinely necessary, set `submissionsPaused: true`. This is
+a **client-side advisory signal only**: the Worker keeps accepting and applying any `/api/increment`
+request that does arrive (never rejecting or discarding data that legitimately reaches it — that
+would contradict "never lose data"), but a client that sees `submissionsPaused` in its config simply
+stops *sending* new batches and keeps accumulating them locally instead
+(`globalTotalsClient.ts` → `sync()` checks this before every attempt).
+
+Personal counting (Tap Mode and Voice Mode, where supported) is entirely local and is **never**
+affected by any of this — it doesn't call the Worker at all except to opportunistically contribute to
+the global total. When `submissionsPaused` is active, `GlobalTotalsPanel` shows exactly:
+
+> Your personal count is safe on this device. Global community synchronization is temporarily delayed
+> to maintain reliable and sustainable service.
+
+No paid plan upgrade, paid add-on, or additional infrastructure is ever triggered automatically by any
+of this — the only manual, human-approved lever is the flat $5/mo Workers Paid plan itself (§6.3).
+
+### 13.6 Estimated monthly usage at scale
+
+Assuming the `normal`/`elevated`/`high` batching from §13.3 applies as volume grows (i.e. the system
+is doing exactly what it's designed to do), and roughly estimating one `/api/increment` request per
+batch, one `/api/totals` and one `/api/config` request per unique visitor session (both edge-cached,
+so repeat requests within the TTL window are free):
+
+| Repetitions/day | Mode (approx.)        | `/api/increment` requests/day | Rough Worker requests/month | D1 writes/month  |
+| ---------------: | ---------------------- | ------------------------------: | ----------------------------: | ------------------: |
+| 1,00,000 (1 lakh) | `normal` (÷100)         | ~1,000                          | ~60,000                        | ~60,000              |
+| 10,00,000 (10 lakh) | `elevated`/`high` (÷250–500) | ~2,000–4,000              | ~150,000                       | ~150,000              |
+| 1,00,00,000 (1 crore) | `cost-protection` (÷1000) | ~10,000                    | ~500,000                       | ~500,000              |
+
+Even at 1 crore repetitions/day, monthly Worker requests and D1 writes stay a small fraction of the
+Workers Paid plan's included 10 million requests/month and D1's generous included row-write
+allowance — meaning the **only real recurring cost stays the flat $5/mo (≈ ₹420) base plan fee**,
+comfortably inside the ₹600–700 target with headroom for the domain-independent taxes/FX variance
+mentioned in the budget. These are order-of-magnitude planning estimates from the batching math
+above, not a substitute for watching the Cloudflare dashboard directly.
+
+### 13.7 What the server stores (and doesn't)
+
+Per §7, the server only ever sees `{ category, amount, idempotencyKey }` — no personal counts, no
+custom chant text, no religion/tradition, no profile names, no audio, no transcripts. Long-term, D1
+holds exactly two kinds of rows (`worker/schema.sql`):
+
+- `totals` — two aggregate numeric counters (`chant`, `affirmation`). This is the only long-lived
+  data; it never grows in row count, only in value.
+- `idempotency_keys` — one short-lived row per batch, auto-pruned by the `scheduled()` cron after
+  `IDEMPOTENCY_RETENTION_HOURS = 60` hours (within the required 48–72h window), via
+  `pruneExpiredIdempotencyKeys()` in `worker/src/db.ts`.
+- `rate_limits` — one short-lived row per `(IP hash, one-minute window)`, pruned hourly by the same
+  cron (§7).
+
+`worker/src/db.ts`'s `getUsageSnapshot()`/`storageWarningMessage()` estimate D1 storage from row
+counts (a rough, explicitly non-authoritative planning signal — the Cloudflare D1 dashboard is
+always the authoritative figure) and the Worker's `scheduled()` handler logs a single warning line
+when that estimate crosses ~50%, ~70% or ~85% of D1's included storage limit, so storage pressure is
+visible in Worker logs well before it becomes a problem — without adding a routine per-request log
+line anywhere (kept deliberately minimal, per the budget's "minimize production logging").
+
+On the client, personal history/streaks/daily logs are capped to the most recent 365 days
+(`src/state/appDataReducer.ts` → `bumpDailyLog`) while lifetime aggregate totals are preserved
+indefinitely; the offline contribution queue lives in IndexedDB
+(`src/lib/offlineQueueDb.ts`/`globalTotalsQueue.ts`), and small preferences (theme, language,
+profile settings) remain in LocalStorage. Both storage layers degrade gracefully on quota errors
+(operations become safe no-ops rather than throwing), and Settings already exposes export/clear of
+all local data.

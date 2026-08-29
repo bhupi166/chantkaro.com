@@ -12,10 +12,12 @@ export function ContactPage() {
             {t('contact.generalLabel')}
           </dt>
           <dd>
-            <a className="underline" href="mailto:hello@chantkaro.com">
-              hello@chantkaro.com
-            </a>{' '}
-            <span className="text-xs text-[color:var(--fg-muted)]">{t('contact.placeholder')}</span>
+            <a
+              className="underline"
+              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20General%20Inquiry"
+            >
+              bhupi166@gmail.com
+            </a>
           </dd>
         </div>
         <div>
@@ -23,10 +25,12 @@ export function ContactPage() {
             {t('contact.privacyLabel')}
           </dt>
           <dd>
-            <a className="underline" href="mailto:privacy@chantkaro.com">
-              privacy@chantkaro.com
-            </a>{' '}
-            <span className="text-xs text-[color:var(--fg-muted)]">{t('contact.placeholder')}</span>
+            <a
+              className="underline"
+              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Privacy%20Inquiry"
+            >
+              bhupi166@gmail.com
+            </a>
           </dd>
         </div>
         <div>
@@ -34,10 +38,12 @@ export function ContactPage() {
             {t('contact.contentLabel')}
           </dt>
           <dd>
-            <a className="underline" href="mailto:content@chantkaro.com">
-              content@chantkaro.com
-            </a>{' '}
-            <span className="text-xs text-[color:var(--fg-muted)]">{t('contact.placeholder')}</span>
+            <a
+              className="underline"
+              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Content%20Correction"
+            >
+              bhupi166@gmail.com
+            </a>
           </dd>
         </div>
       </dl>
