@@ -1,7 +1,17 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TapCounterArea } from './TapCounterArea';
 import { createEmptyStats } from '@/lib/practice';
+import * as sound from '@/lib/sound';
+
+vi.mock('@/lib/sound', () => ({
+  playTapSound: vi.fn(),
+  playCompletionSound: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 function baseProps(overrides: Partial<Parameters<typeof TapCounterArea>[0]> = {}) {
   return {
@@ -52,6 +62,39 @@ describe('TapCounterArea — target completion celebration', () => {
 
     expect(screen.getByText(/you achieved your target today/i)).toBeInTheDocument();
     expect(document.querySelector('.pointer-events-none.fixed')).toBeInTheDocument();
+  });
+
+  it('plays the completion sound once the target is reached, when sound is enabled', () => {
+    const props = baseProps({ isComplete: false, soundEnabled: true });
+    const { rerender } = render(<TapCounterArea {...props} />);
+    expect(sound.playCompletionSound).not.toHaveBeenCalled();
+
+    rerender(
+      <TapCounterArea
+        {...props}
+        stats={{ ...props.stats, sessionCount: 11 }}
+        percent={100}
+        isComplete
+      />,
+    );
+
+    expect(sound.playCompletionSound).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not play the completion sound when sound is disabled', () => {
+    const props = baseProps({ isComplete: false, soundEnabled: false });
+    const { rerender } = render(<TapCounterArea {...props} />);
+
+    rerender(
+      <TapCounterArea
+        {...props}
+        stats={{ ...props.stats, sessionCount: 11 }}
+        percent={100}
+        isComplete
+      />,
+    );
+
+    expect(sound.playCompletionSound).not.toHaveBeenCalled();
   });
 
   it('lets the user dismiss the celebration message', async () => {

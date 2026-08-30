@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CircularProgress } from './CircularProgress';
 import { ConfirmDialog } from './ConfirmDialog';
 import { Confetti } from './Confetti';
-import { playTapSound } from '@/lib/sound';
+import { playCompletionSound, playTapSound } from '@/lib/sound';
 import type { PracticeStats } from '@/lib/types';
 
 interface TapCounterAreaProps {
@@ -46,9 +46,10 @@ export function TapCounterArea({
   useEffect(() => {
     if (isComplete && !wasCompleteRef.current) {
       setShowCompletion(true);
+      if (soundEnabled) playCompletionSound();
     }
     wasCompleteRef.current = isComplete;
-  }, [isComplete]);
+  }, [isComplete, soundEnabled]);
 
   // On iOS, a sustained press over the button can make Safari hijack the
   // touch for its own gesture recognition (text-selection callout,
