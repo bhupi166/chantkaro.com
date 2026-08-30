@@ -19,6 +19,7 @@ function baseProps(overrides: Partial<Parameters<typeof TapCounterArea>[0]> = {}
     percent: 91,
     isComplete: false,
     soundEnabled: false,
+    completionSoundEnabled: false,
     onTap: vi.fn(),
     onUndo: vi.fn(),
     onResetConfirmed: vi.fn(),
@@ -64,8 +65,8 @@ describe('TapCounterArea — target completion celebration', () => {
     expect(document.querySelector('.pointer-events-none.fixed')).toBeInTheDocument();
   });
 
-  it('plays the completion sound once the target is reached, when sound is enabled', () => {
-    const props = baseProps({ isComplete: false, soundEnabled: true });
+  it('plays the completion sound once the target is reached, when enabled', () => {
+    const props = baseProps({ isComplete: false, completionSoundEnabled: true });
     const { rerender } = render(<TapCounterArea {...props} />);
     expect(sound.playCompletionSound).not.toHaveBeenCalled();
 
@@ -81,8 +82,8 @@ describe('TapCounterArea — target completion celebration', () => {
     expect(sound.playCompletionSound).toHaveBeenCalledTimes(1);
   });
 
-  it('does not play the completion sound when sound is disabled', () => {
-    const props = baseProps({ isComplete: false, soundEnabled: false });
+  it('does not play the completion sound when disabled', () => {
+    const props = baseProps({ isComplete: false, completionSoundEnabled: false });
     const { rerender } = render(<TapCounterArea {...props} />);
 
     rerender(

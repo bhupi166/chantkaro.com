@@ -11,6 +11,7 @@ interface TapCounterAreaProps {
   percent: number | null;
   isComplete: boolean;
   soundEnabled: boolean;
+  completionSoundEnabled: boolean;
   onTap: () => void;
   onUndo: () => void;
   onResetConfirmed: () => void;
@@ -27,6 +28,7 @@ export function TapCounterArea({
   percent,
   isComplete,
   soundEnabled,
+  completionSoundEnabled,
   onTap,
   onUndo,
   onResetConfirmed,
@@ -46,10 +48,10 @@ export function TapCounterArea({
   useEffect(() => {
     if (isComplete && !wasCompleteRef.current) {
       setShowCompletion(true);
-      if (soundEnabled) playCompletionSound();
+      if (completionSoundEnabled) playCompletionSound();
     }
     wasCompleteRef.current = isComplete;
-  }, [isComplete, soundEnabled]);
+  }, [isComplete, completionSoundEnabled]);
 
   // On iOS, a sustained press over the button can make Safari hijack the
   // touch for its own gesture recognition (text-selection callout,

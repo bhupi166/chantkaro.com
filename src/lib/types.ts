@@ -80,6 +80,7 @@ export interface ProfileData {
   uiLanguage: UiLanguage;
   vibrationEnabled: boolean;
   soundEnabled: boolean;
+  completionSoundEnabled: boolean;
   dailyColorTheme: boolean;
   contributeToGlobalTotals: boolean;
   hasSeenContributionNotice: boolean;

@@ -252,6 +252,7 @@
     "practiceFeelTitle": "Practice Feel",
     "vibrationLabel": "Vibration on tap",
     "soundLabel": "Sound on tap",
+    "completionSoundLabel": "Sound when target is reached",
     "appearanceTitle": "Appearance & Language",
     "themeLabel": "Theme",
     "themeSystem": "Match device",

@@ -112,6 +112,7 @@ export function PracticePage() {
           percent={counter.percent}
           isComplete={counter.isComplete}
           soundEnabled={activeProfile.soundEnabled}
+          completionSoundEnabled={activeProfile.completionSoundEnabled !== false}
           onTap={() => counter.tap('tap')}
           onUndo={counter.undo}
           onResetConfirmed={counter.resetSession}

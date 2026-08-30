@@ -139,6 +139,13 @@ export function SettingsPage() {
             dispatch({ type: 'UPDATE_SETTINGS', patch: { soundEnabled: checked } })
           }
         />
+        <ToggleRow
+          label={t('settings.completionSoundLabel')}
+          checked={activeProfile.completionSoundEnabled !== false}
+          onChange={(checked) =>
+            dispatch({ type: 'UPDATE_SETTINGS', patch: { completionSoundEnabled: checked } })
+          }
+        />
       </Section>
 
       <Section title={t('settings.appearanceTitle')}>
