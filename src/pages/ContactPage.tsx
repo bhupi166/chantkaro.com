@@ -14,9 +14,9 @@ export function ContactPage() {
           <dd>
             <a
               className="underline"
-              href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20General%20Inquiry"
+              href="mailto:contact@chantkaro.com?subject=Chant%20Karo%20-%20General%20Inquiry"
             >
-              bhupi166@gmail.com
+              contact@chantkaro.com
             </a>
           </dd>
         </div>

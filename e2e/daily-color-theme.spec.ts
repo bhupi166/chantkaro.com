@@ -24,6 +24,11 @@ test.describe('Daily Colour Theme setting', () => {
   test('is off by default, and toggling it changes then restores the accent colour', async ({
     page,
   }) => {
+    // Sunday's daily colour intentionally matches the app's own default
+    // saffron (see dailyColorTheme.ts) — pin the clock to a Wednesday so
+    // this test deterministically exercises a colour that actually differs,
+    // regardless of what day it's really run on.
+    await page.clock.setFixedTime(new Date('2026-01-07T12:00:00'));
     await page.goto('/settings');
     const toggle = page.getByRole('switch', { name: 'Daily Colour Theme' });
     await expect(toggle).not.toBeChecked();

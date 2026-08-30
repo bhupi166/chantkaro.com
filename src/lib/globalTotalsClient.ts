@@ -13,7 +13,7 @@ import {
 } from './globalTotalsQueue';
 import { getCachedSyncConfig, getSyncConfig } from './syncConfigClient';
 import { getCachedSessionToken, getSessionToken, invalidateSessionToken, type SessionInfo } from './sessionClient';
-import type { GlobalTotals, PracticeCategory, PracticeMode } from './types';
+import type { CountingMode, GlobalTotals, PracticeCategory } from './types';
 
 /** How often the client checks whether anything queued is worth (re)sending. Not itself a guaranteed request — gated by queue contents + backoff. */
 const SYNC_CHECK_INTERVAL_MS = 30_000;
@@ -109,7 +109,7 @@ class GlobalTotalsClient {
    * switching between Tap and Voice mid-session flushes whatever was
    * accumulating first.
    */
-  record(category: PracticeCategory, contributionEnabled: boolean, mode: PracticeMode = 'tap') {
+  record(category: PracticeCategory, contributionEnabled: boolean, mode: CountingMode = 'tap') {
     if (!contributionEnabled) return;
     let state = this.state;
     if (state.pendingMode && state.pendingMode !== mode && totalPending(state) > 0) {

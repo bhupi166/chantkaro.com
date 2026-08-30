@@ -31,7 +31,10 @@ export interface PracticeOption {
 
 export type RepetitionTarget = 11 | 21 | 51 | 108 | 1008 | number | null;
 
-export type PracticeMode = 'tap' | 'voice';
+/** Modes that actually produce repetitions, and so are safe to report to the global counter. */
+export type CountingMode = 'tap' | 'voice';
+/** Timer Mode never counts anything — kept out of CountingMode so it can never reach the server. */
+export type PracticeMode = CountingMode | 'timer';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
@@ -86,6 +89,8 @@ export interface ProfileData {
   hasSeenContributionNotice: boolean;
   lastActivePractice?: PracticeSelection;
   lastMode?: PracticeMode;
+  /** Only meaningful when lastMode is 'timer' — the duration (seconds) last chosen. */
+  lastTimerDurationSeconds?: number;
   customChants: CustomPractice[];
   customAffirmations: CustomPractice[];
   recentPracticeKeys: string[];
@@ -106,7 +111,7 @@ export interface QueuedIncrement {
   amount: number;
   queuedAt: string;
   /** Which counting method produced this batch — used server-side for a mode-appropriate speed check. */
-  mode: PracticeMode;
+  mode: CountingMode;
   /** Wall-clock time (ms) the batch's repetitions were spread over, for the same server-side speed check. */
   elapsedMs: number;
 }

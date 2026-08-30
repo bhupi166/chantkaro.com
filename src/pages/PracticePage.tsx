@@ -7,6 +7,7 @@ import { useFullscreen } from '@/hooks/useFullscreen';
 import { globalTotalsClient } from '@/lib/globalTotalsClient';
 import { TapCounterArea } from '@/components/TapCounterArea';
 import { VoiceCounterArea } from '@/components/VoiceCounterArea';
+import { TimerCounterArea } from '@/components/TimerCounterArea';
 import { TurnstileChallengeHost } from '@/components/TurnstileChallengeHost';
 import type { PracticeMode } from '@/lib/types';
 
@@ -117,13 +118,20 @@ export function PracticePage() {
           onUndo={counter.undo}
           onResetConfirmed={counter.resetSession}
         />
-      ) : (
+      ) : mode === 'voice' ? (
         <VoiceCounterArea
           phrase={selection.displayText}
           stats={counter.stats}
           onMatches={handleVoiceMatches}
           onUndo={counter.undo}
           onUseTapModeInstead={() => setMode('tap')}
+        />
+      ) : (
+        <TimerCounterArea
+          durationSeconds={activeProfile.lastTimerDurationSeconds ?? 300}
+          completionSoundEnabled={activeProfile.completionSoundEnabled !== false}
+          vibrationEnabled={activeProfile.vibrationEnabled}
+          onExitHome={() => navigate('/')}
         />
       )}
 

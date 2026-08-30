@@ -90,9 +90,10 @@
     "recentlyUsed": "Recently used",
     "useThisText": "Use This Text",
     "selected": "Selected",
-    "howWillYouCount": "How will you count?",
+    "howWillYouCount": "How will you practice?",
     "tapMode": "Tap Mode",
     "voiceModeBeta": "Voice Mode (Beta)",
+    "timerMode": "Timer Mode",
     "beginPractice": "Begin Practice"
   },
   "traditions": {
@@ -223,6 +224,31 @@
     "hideLiveCaptions": "Hide live captions",
     "showLiveCaptions": "Show live captions"
   },
+  "timer": {
+    "selectDuration": "Select duration",
+    "oneMinute": "1 minute",
+    "twoMinutes": "2 minutes",
+    "fiveMinutes": "5 minutes",
+    "tenMinutes": "10 minutes",
+    "minutesLabel": "Minutes",
+    "secondsLabel": "Seconds",
+    "durationInvalid": "Please enter a valid duration.",
+    "durationTooShort": "Minimum duration is 1 minute.",
+    "durationTooLong": "Maximum duration is 30 minutes.",
+    "getReady": "Get Ready",
+    "paused": "Paused",
+    "inProgress": "In progress",
+    "remainingTimeLabel": "{{time}} remaining",
+    "stop": "Stop",
+    "stopDialogTitle": "Stop this practice?",
+    "stopDialogDescription": "This ends your timer session now. Timer Mode never counts repetitions, so nothing about your personal or global totals is affected either way.",
+    "stopConfirmLabel": "Stop Practice",
+    "completedTitle": "Practice Completed",
+    "completedSubtitle": "Well done — take a peaceful moment before you continue.",
+    "practiceAgain": "Practice Again",
+    "selectAnotherDuration": "Select Another Duration",
+    "returnHome": "Return to Home"
+  },
   "stats": {
     "heading": "My Progress",
     "subtitle": "Your practice is personal. Continue whenever it feels right.",
@@ -297,7 +323,7 @@
     "independenceHeading": "Independence",
     "independenceBody": "Chant Karo is an independent project. It is not affiliated with, endorsed by, or operated on behalf of any religious organization, unless explicitly stated otherwise.",
     "contactHeading": "Contact",
-    "contactBody": "Questions about this policy can be sent to <1>bhupi166@gmail.com</1>."
+    "contactBody": "Questions about this policy can be sent to <1>contact@chantkaro.com</1>."
   },
   "terms": {
     "title": "Terms of Use",
@@ -318,7 +344,7 @@
     "changesHeading": "Changes",
     "changesBody": "We may update these terms from time to time. Continued use after a change means you accept the updated terms.",
     "contactHeading": "Contact",
-    "contactBody": "Questions can be sent to <1>bhupi166@gmail.com</1>."
+    "contactBody": "Questions can be sent to <1>contact@chantkaro.com</1>."
   },
   "about": {
     "title": "About Chant Karo",

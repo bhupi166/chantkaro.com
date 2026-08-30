@@ -35,7 +35,13 @@ export type AppDataAction =
       >;
     }
   | { type: 'ADD_CUSTOM_PRACTICE'; category: PracticeCategory; text: string }
-  | { type: 'SET_ACTIVE_PRACTICE'; selection: PracticeSelection; mode: PracticeMode }
+  | {
+      type: 'SET_ACTIVE_PRACTICE';
+      selection: PracticeSelection;
+      mode: PracticeMode;
+      /** Only meaningful when mode is 'timer'. */
+      timerDurationSeconds?: number;
+    }
   | { type: 'SET_TARGET'; key: string; target: RepetitionTarget }
   | { type: 'TAP'; key: string; category: PracticeCategory }
   | { type: 'UNDO'; key: string; category: PracticeCategory }
@@ -134,6 +140,7 @@ export function appDataReducer(state: AppData, action: AppDataAction): AppData {
           ...p,
           lastActivePractice: action.selection,
           lastMode: action.mode,
+          lastTimerDurationSeconds: action.timerDurationSeconds ?? p.lastTimerDurationSeconds,
           recentPracticeKeys,
         };
       });

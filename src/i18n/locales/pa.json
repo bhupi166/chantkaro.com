@@ -90,9 +90,10 @@
     "recentlyUsed": "ਹਾਲ ਹੀ ਵਿੱਚ ਵਰਤੇ ਗਏ",
     "useThisText": "ਇਹ ਪਾਠ ਵਰਤੋ",
     "selected": "ਚੁਣਿਆ ਗਿਆ",
-    "howWillYouCount": "ਤੁਸੀਂ ਕਿਵੇਂ ਗਿਣਤੀ ਕਰੋਗੇ?",
+    "howWillYouCount": "ਤੁਸੀਂ ਕਿਵੇਂ ਅਭਿਆਸ ਕਰੋਗੇ?",
     "tapMode": "ਟੈਪ ਮੋਡ",
     "voiceModeBeta": "ਵੌਇਸ ਮੋਡ (ਬੀਟਾ)",
+    "timerMode": "ਟਾਈਮਰ ਮੋਡ",
     "beginPractice": "ਅਭਿਆਸ ਸ਼ੁਰੂ ਕਰੋ"
   },
   "traditions": {
@@ -223,6 +224,31 @@
     "hideLiveCaptions": "ਲਾਈਵ ਕੈਪਸ਼ਨ ਲੁਕਾਓ",
     "showLiveCaptions": "ਲਾਈਵ ਕੈਪਸ਼ਨ ਵਿਖਾਓ"
   },
+  "timer": {
+    "selectDuration": "ਮਿਆਦ ਚੁਣੋ",
+    "oneMinute": "1 ਮਿੰਟ",
+    "twoMinutes": "2 ਮਿੰਟ",
+    "fiveMinutes": "5 ਮਿੰਟ",
+    "tenMinutes": "10 ਮਿੰਟ",
+    "minutesLabel": "ਮਿੰਟ",
+    "secondsLabel": "ਸਕਿੰਟ",
+    "durationInvalid": "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਮਿਆਦ ਦਰਜ ਕਰੋ।",
+    "durationTooShort": "ਘੱਟੋ-ਘੱਟ ਮਿਆਦ 1 ਮਿੰਟ ਹੈ।",
+    "durationTooLong": "ਵੱਧ ਤੋਂ ਵੱਧ ਮਿਆਦ 30 ਮਿੰਟ ਹੈ।",
+    "getReady": "ਤਿਆਰ ਹੋ ਜਾਓ",
+    "paused": "ਰੁਕਿਆ ਹੋਇਆ",
+    "inProgress": "ਜਾਰੀ ਹੈ",
+    "remainingTimeLabel": "{{time}} ਬਾਕੀ",
+    "stop": "ਰੋਕੋ",
+    "stopDialogTitle": "ਇਹ ਅਭਿਆਸ ਰੋਕਣਾ ਹੈ?",
+    "stopDialogDescription": "ਇਹ ਹੁਣੇ ਤੁਹਾਡਾ ਟਾਈਮਰ ਸੈਸ਼ਨ ਖਤਮ ਕਰ ਦੇਵੇਗਾ। ਟਾਈਮਰ ਮੋਡ ਕਦੇ ਵੀ ਦੁਹਰਾਓ ਨਹੀਂ ਗਿਣਦਾ, ਇਸ ਲਈ ਤੁਹਾਡੇ ਨਿੱਜੀ ਜਾਂ ਗਲੋਬਲ ਕੁੱਲ ਜੋੜ 'ਤੇ ਕੋਈ ਅਸਰ ਨਹੀਂ ਪੈਂਦਾ।",
+    "stopConfirmLabel": "ਅਭਿਆਸ ਰੋਕੋ",
+    "completedTitle": "ਅਭਿਆਸ ਪੂਰਾ ਹੋਇਆ",
+    "completedSubtitle": "ਬਹੁਤ ਵਧੀਆ — ਅੱਗੇ ਵਧਣ ਤੋਂ ਪਹਿਲਾਂ ਇੱਕ ਸ਼ਾਂਤ ਪਲ ਲਓ।",
+    "practiceAgain": "ਫਿਰ ਤੋਂ ਅਭਿਆਸ ਕਰੋ",
+    "selectAnotherDuration": "ਇੱਕ ਹੋਰ ਮਿਆਦ ਚੁਣੋ",
+    "returnHome": "ਹੋਮ 'ਤੇ ਵਾਪਸ ਜਾਓ"
+  },
   "stats": {
     "heading": "ਮੇਰੀ ਤਰੱਕੀ",
     "subtitle": "ਤੁਹਾਡਾ ਅਭਿਆਸ ਨਿੱਜੀ ਹੈ। ਜਦੋਂ ਵੀ ਠੀਕ ਲੱਗੇ, ਜਾਰੀ ਰੱਖੋ।",
@@ -297,7 +323,7 @@
     "independenceHeading": "ਸੁਤੰਤਰਤਾ",
     "independenceBody": "Chant Karo ਇੱਕ ਸੁਤੰਤਰ ਪ੍ਰੋਜੈਕਟ ਹੈ। ਇਹ ਕਿਸੇ ਵੀ ਧਾਰਮਿਕ ਸੰਸਥਾ ਨਾਲ ਸੰਬੰਧਿਤ, ਸਮਰਥਿਤ, ਜਾਂ ਉਸਦੀ ਤਰਫ਼ੋਂ ਸੰਚਾਲਿਤ ਨਹੀਂ ਹੈ, ਜਦੋਂ ਤੱਕ ਸਪਸ਼ਟ ਤੌਰ 'ਤੇ ਨਾ ਕਿਹਾ ਜਾਵੇ।",
     "contactHeading": "ਸੰਪਰਕ ਕਰੋ",
-    "contactBody": "ਇਸ ਨੀਤੀ ਬਾਰੇ ਸਵਾਲ <1>bhupi166@gmail.com</1> 'ਤੇ ਭੇਜੇ ਜਾ ਸਕਦੇ ਹਨ।"
+    "contactBody": "ਇਸ ਨੀਤੀ ਬਾਰੇ ਸਵਾਲ <1>contact@chantkaro.com</1> 'ਤੇ ਭੇਜੇ ਜਾ ਸਕਦੇ ਹਨ।"
   },
   "terms": {
     "title": "ਵਰਤੋਂ ਦੀਆਂ ਸ਼ਰਤਾਂ",
@@ -318,7 +344,7 @@
     "changesHeading": "ਬਦਲਾਅ",
     "changesBody": "ਅਸੀਂ ਸਮੇਂ-ਸਮੇਂ 'ਤੇ ਇਹਨਾਂ ਸ਼ਰਤਾਂ ਨੂੰ ਅੱਪਡੇਟ ਕਰ ਸਕਦੇ ਹਾਂ। ਬਦਲਾਅ ਤੋਂ ਬਾਅਦ ਲਗਾਤਾਰ ਵਰਤੋਂ ਦਾ ਮਤਲਬ ਹੈ ਕਿ ਤੁਸੀਂ ਅੱਪਡੇਟ ਕੀਤੀਆਂ ਸ਼ਰਤਾਂ ਸਵੀਕਾਰ ਕਰਦੇ ਹੋ।",
     "contactHeading": "ਸੰਪਰਕ ਕਰੋ",
-    "contactBody": "ਸਵਾਲ <1>bhupi166@gmail.com</1> 'ਤੇ ਭੇਜੇ ਜਾ ਸਕਦੇ ਹਨ।"
+    "contactBody": "ਸਵਾਲ <1>contact@chantkaro.com</1> 'ਤੇ ਭੇਜੇ ਜਾ ਸਕਦੇ ਹਨ।"
   },
   "about": {
     "title": "Chant Karo ਬਾਰੇ",

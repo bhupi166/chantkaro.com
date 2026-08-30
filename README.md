@@ -214,7 +214,7 @@ Voice Mode uses the (still non-standard) Web Speech `SpeechRecognition` API:
 
 - Contact addresses (`PrivacyPage.tsx`, `TermsPage.tsx`, `ContactPage.tsx`) and the "Last updated"
   dates (`PrivacyPage.tsx`, `TermsPage.tsx`) are set — all contact mailto links point to
-  `bhupi166@gmail.com` (every mailto link includes a `subject=Chant%20Karo%20-%20…` query parameter so
+  `contact@chantkaro.com` (every mailto link includes a `subject=Chant%20Karo%20-%20…` query parameter so
   outgoing emails always carry a "Chant Karo" subject), and both "Last updated" dates read
   August 29, 2026. Revisit both if the contact address or launch date changes.
 - `worker/wrangler.toml` — `database_id` under `[[d1_databases]]`, and `ALLOWED_ORIGINS` under `[vars]`.

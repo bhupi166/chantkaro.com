@@ -40,9 +40,9 @@ export function PrivacyPage() {
           {'Questions about this policy can be sent to '}
           <a
             className="underline"
-            href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Privacy%20Policy%20Question"
+            href="mailto:contact@chantkaro.com?subject=Chant%20Karo%20-%20Privacy%20Policy%20Question"
           >
-            bhupi166@gmail.com
+            contact@chantkaro.com
           </a>
           {'.'}
         </Trans>

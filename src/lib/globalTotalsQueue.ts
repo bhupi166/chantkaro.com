@@ -1,5 +1,5 @@
 import { loadQueueRecord, saveQueueRecord } from './offlineQueueDb';
-import type { PracticeCategory, PracticeMode, QueuedIncrement } from './types';
+import type { CountingMode, PracticeCategory, QueuedIncrement } from './types';
 
 /** Legacy key from before the IndexedDB migration — read once, then cleared. */
 const LEGACY_LOCALSTORAGE_KEY = 'chantkaro:queue:v1';
@@ -12,7 +12,7 @@ export interface QueueState {
   /** Epoch ms — don't attempt another sync before this time. */
   nextRetryAt: number;
   /** Counting method for whatever is currently accumulating in `pending` — a batch is never mixed-mode. */
-  pendingMode: PracticeMode | null;
+  pendingMode: CountingMode | null;
   /** Epoch ms of the first repetition since the last flush — used to compute a batch's elapsedMs. */
   pendingStartedAt: number | null;
 }
@@ -81,7 +81,7 @@ export async function saveQueueState(state: QueueState): Promise<void> {
 export function addPending(
   state: QueueState,
   category: PracticeCategory,
-  mode: PracticeMode,
+  mode: CountingMode,
   amount = 1,
   now = Date.now(),
 ): QueueState {

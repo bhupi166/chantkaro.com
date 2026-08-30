@@ -6,6 +6,7 @@ import { resolveRecentSelections } from '@/lib/recent';
 import { practiceKey } from '@/lib/practice';
 import { localizedOptionTitle } from '@/lib/practiceLocalization';
 import { TargetPicker } from './TargetPicker';
+import { DurationPicker } from './DurationPicker';
 import type {
   PracticeCategory,
   PracticeMode,
@@ -55,6 +56,7 @@ export function PracticeSelector({
   const [selection, setSelection] = useState<PracticeSelection | null>(null);
   const [target, setTarget] = useState<RepetitionTarget>(null);
   const [mode, setMode] = useState<PracticeMode>('tap');
+  const [durationSeconds, setDurationSeconds] = useState<number | null>(null);
 
   const heading = t(headingKey, headingValues);
   const supportingText = t(supportingTextKey, supportingTextValues);
@@ -122,11 +124,22 @@ export function PracticeSelector({
     setSelection({ category, displayText: text });
   }
 
+  const canBegin = !!selection && (mode !== 'timer' || !!durationSeconds);
+
   function begin() {
-    if (!selection) return;
-    dispatch({ type: 'SET_ACTIVE_PRACTICE', selection, mode });
-    const key = practiceKey(selection);
-    dispatch({ type: 'SET_TARGET', key, target });
+    if (!canBegin || !selection) return;
+    if (mode === 'timer') {
+      dispatch({
+        type: 'SET_ACTIVE_PRACTICE',
+        selection,
+        mode,
+        timerDurationSeconds: durationSeconds ?? undefined,
+      });
+    } else {
+      dispatch({ type: 'SET_ACTIVE_PRACTICE', selection, mode });
+      const key = practiceKey(selection);
+      dispatch({ type: 'SET_TARGET', key, target });
+    }
     navigate('/practice');
   }
 
@@ -257,12 +270,16 @@ export function PracticeSelector({
             <p className="text-sm text-[color:var(--fg-muted)]">{t('practiceSelector.selected')}</p>
             <p className="font-display text-lg font-semibold">{selection.displayText}</p>
           </div>
-          <TargetPicker value={target} onChange={setTarget} />
+          {mode === 'timer' ? (
+            <DurationPicker value={durationSeconds} onChange={setDurationSeconds} />
+          ) : (
+            <TargetPicker value={target} onChange={setTarget} />
+          )}
           <fieldset>
             <legend className="mb-2 text-sm font-medium text-[color:var(--fg-muted)]">
               {t('practiceSelector.howWillYouCount')}
             </legend>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <ModeButton
                 label={t('practiceSelector.tapMode')}
                 selected={mode === 'tap'}
@@ -273,12 +290,18 @@ export function PracticeSelector({
                 selected={mode === 'voice'}
                 onClick={() => setMode('voice')}
               />
+              <ModeButton
+                label={t('practiceSelector.timerMode')}
+                selected={mode === 'timer'}
+                onClick={() => setMode('timer')}
+              />
             </div>
           </fieldset>
           <button
             type="button"
             onClick={begin}
-            className="min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)]"
+            disabled={!canBegin}
+            className="min-h-12 rounded-full bg-[color:var(--accent)] px-6 py-3 text-base font-semibold text-[color:var(--accent-contrast)] disabled:opacity-50"
           >
             {t('practiceSelector.beginPractice')}
           </button>

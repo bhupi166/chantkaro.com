@@ -90,9 +90,10 @@
     "recentlyUsed": "हाल ही में उपयोग किए गए",
     "useThisText": "यह पाठ उपयोग करें",
     "selected": "चयनित",
-    "howWillYouCount": "आप कैसे गिनती करेंगे?",
+    "howWillYouCount": "आप कैसे अभ्यास करेंगे?",
     "tapMode": "टैप मोड",
     "voiceModeBeta": "वॉइस मोड (बीटा)",
+    "timerMode": "टाइमर मोड",
     "beginPractice": "अभ्यास शुरू करें"
   },
   "traditions": {
@@ -223,6 +224,31 @@
     "hideLiveCaptions": "लाइव कैप्शन छिपाएँ",
     "showLiveCaptions": "लाइव कैप्शन दिखाएँ"
   },
+  "timer": {
+    "selectDuration": "अवधि चुनें",
+    "oneMinute": "1 मिनट",
+    "twoMinutes": "2 मिनट",
+    "fiveMinutes": "5 मिनट",
+    "tenMinutes": "10 मिनट",
+    "minutesLabel": "मिनट",
+    "secondsLabel": "सेकंड",
+    "durationInvalid": "कृपया एक मान्य अवधि दर्ज करें।",
+    "durationTooShort": "न्यूनतम अवधि 1 मिनट है।",
+    "durationTooLong": "अधिकतम अवधि 30 मिनट है।",
+    "getReady": "तैयार हो जाइए",
+    "paused": "रुका हुआ",
+    "inProgress": "जारी है",
+    "remainingTimeLabel": "{{time}} शेष",
+    "stop": "रोकें",
+    "stopDialogTitle": "इस अभ्यास को रोकें?",
+    "stopDialogDescription": "यह अभी आपका टाइमर सत्र समाप्त कर देगा। टाइमर मोड कभी भी पुनरावृत्तियाँ नहीं गिनता, इसलिए आपके व्यक्तिगत या वैश्विक कुल योग पर कोई असर नहीं पड़ता।",
+    "stopConfirmLabel": "अभ्यास रोकें",
+    "completedTitle": "अभ्यास पूरा हुआ",
+    "completedSubtitle": "बहुत बढ़िया — आगे बढ़ने से पहले एक शांत पल लें।",
+    "practiceAgain": "फिर से अभ्यास करें",
+    "selectAnotherDuration": "एक और अवधि चुनें",
+    "returnHome": "होम पर वापस जाएँ"
+  },
   "stats": {
     "heading": "मेरी प्रगति",
     "subtitle": "आपका अभ्यास व्यक्तिगत है। जब भी उचित लगे, जारी रखें।",
@@ -297,7 +323,7 @@
     "independenceHeading": "स्वतंत्रता",
     "independenceBody": "Chant Karo एक स्वतंत्र परियोजना है। यह किसी भी धार्मिक संगठन से संबद्ध, समर्थित, या उसकी ओर से संचालित नहीं है, जब तक कि स्पष्ट रूप से न कहा जाए।",
     "contactHeading": "संपर्क करें",
-    "contactBody": "इस नीति के बारे में प्रश्न <1>bhupi166@gmail.com</1> पर भेजे जा सकते हैं।"
+    "contactBody": "इस नीति के बारे में प्रश्न <1>contact@chantkaro.com</1> पर भेजे जा सकते हैं।"
   },
   "terms": {
     "title": "उपयोग की शर्तें",
@@ -318,7 +344,7 @@
     "changesHeading": "परिवर्तन",
     "changesBody": "हम समय-समय पर इन शर्तों को अपडेट कर सकते हैं। परिवर्तन के बाद निरंतर उपयोग का अर्थ है कि आप अद्यतन शर्तों को स्वीकार करते हैं।",
     "contactHeading": "संपर्क करें",
-    "contactBody": "प्रश्न <1>bhupi166@gmail.com</1> पर भेजे जा सकते हैं।"
+    "contactBody": "प्रश्न <1>contact@chantkaro.com</1> पर भेजे जा सकते हैं।"
   },
   "about": {
     "title": "Chant Karo के बारे में",

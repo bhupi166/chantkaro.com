@@ -9,7 +9,7 @@ import {
   progressPercent,
   rolledOverForToday,
 } from '@/lib/practice';
-import type { PracticeMode, PracticeSelection, RepetitionTarget } from '@/lib/types';
+import type { CountingMode, PracticeSelection, RepetitionTarget } from '@/lib/types';
 
 export function usePracticeCounter(selection: PracticeSelection) {
   const { activeProfile, dispatch } = useAppData();
@@ -19,7 +19,7 @@ export function usePracticeCounter(selection: PracticeSelection) {
     [activeProfile.stats, key],
   );
 
-  const tap = useCallback((mode: PracticeMode = 'tap') => {
+  const tap = useCallback((mode: CountingMode = 'tap') => {
     dispatch({ type: 'TAP', key, category: selection.category });
     // Anonymous contribution is fire-and-forget and independent of the
     // personal count above; it is never retracted by a later Undo, since a

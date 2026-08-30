@@ -37,9 +37,9 @@ export function TermsPage() {
           {'Questions can be sent to '}
           <a
             className="underline"
-            href="mailto:bhupi166@gmail.com?subject=Chant%20Karo%20-%20Terms%20Question"
+            href="mailto:contact@chantkaro.com?subject=Chant%20Karo%20-%20Terms%20Question"
           >
-            bhupi166@gmail.com
+            contact@chantkaro.com
           </a>
           {'.'}
         </Trans>
