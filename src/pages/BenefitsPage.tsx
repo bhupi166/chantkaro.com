@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 const CHANT_KEYS = ['chant1', 'chant2', 'chant3', 'chant4', 'chant5'] as const;
 const AFFIRMATION_KEYS = [
@@ -12,6 +13,12 @@ const AFFIRMATION_KEYS = [
 
 export function BenefitsPage() {
   const { t } = useTranslation();
+
+  useDocumentHead({
+    title: t('seo.benefitsTitle'),
+    description: t('seo.benefitsDescription'),
+    path: '/benefits',
+  });
 
   return (
     <div className="flex flex-col gap-10">

@@ -2,10 +2,17 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PracticeSelector } from '@/components/PracticeSelector';
 import { PROFESSIONAL_AFFIRMATIONS, PROFESSION_CATEGORIES } from '@/data/professionalAffirmations';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function ProfessionalAffirmationsPage() {
   const { t } = useTranslation();
   const [professionKey, setProfessionKey] = useState<string | null>(null);
+
+  useDocumentHead({
+    title: t('seo.professionalAffirmationsTitle'),
+    description: t('seo.professionalAffirmationsDescription'),
+    path: '/affirmation/professional',
+  });
 
   if (!professionKey) {
     return (

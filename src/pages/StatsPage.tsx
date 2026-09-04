@@ -11,6 +11,7 @@ import {
   todaysRepetitions,
 } from '@/lib/statsSelectors';
 import { formatCount } from '@/lib/format';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 function labelForKey(key: string, profile: ReturnType<typeof useAppData>['activeProfile']): string {
   if (key.startsWith('option:')) {
@@ -36,6 +37,13 @@ function labelForKey(key: string, profile: ReturnType<typeof useAppData>['active
 export function StatsPage() {
   const { t, i18n } = useTranslation();
   const { activeProfile } = useAppData();
+
+  useDocumentHead({
+    title: `${t('stats.heading')} — Chant Karo`,
+    description: t('seo.homeDescription'),
+    path: '/stats',
+    noindex: true,
+  });
 
   const today = useMemo(() => todaysRepetitions(activeProfile), [activeProfile]);
   const sevenDay = useMemo(() => sevenDayTotal(activeProfile), [activeProfile]);

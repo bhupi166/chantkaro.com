@@ -1,7 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function ContactPage() {
   const { t } = useTranslation();
+
+  useDocumentHead({
+    title: t('seo.contactTitle'),
+    description: t('seo.contactDescription'),
+    path: '/contact',
+  });
+
   return (
     <article className="flex max-w-2xl flex-col gap-4">
       <h1 className="font-display text-2xl font-semibold">{t('contact.title')}</h1>

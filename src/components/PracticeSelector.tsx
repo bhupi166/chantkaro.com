@@ -7,6 +7,7 @@ import { practiceKey } from '@/lib/practice';
 import { localizedOptionTitle } from '@/lib/practiceLocalization';
 import { TargetPicker } from './TargetPicker';
 import { DurationPicker } from './DurationPicker';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 import type {
   PracticeCategory,
   PracticeMode,
@@ -30,6 +31,15 @@ interface PracticeSelectorProps {
   /** Interpolation values for headingKey/supportingTextKey, if needed. */
   headingValues?: Record<string, string>;
   supportingTextValues?: Record<string, string>;
+  /**
+   * Per-route <title>/description i18next keys and path, for search
+   * engines and link previews. Omit when the parent page already calls
+   * useDocumentHead() itself (e.g. ProfessionalAffirmationsPage, which has
+   * a picker screen before this component ever renders).
+   */
+  seoTitleKey?: string;
+  seoDescriptionKey?: string;
+  seoPath?: string;
 }
 
 export function PracticeSelector({
@@ -45,8 +55,17 @@ export function PracticeSelector({
   contentNoteKey,
   headingValues,
   supportingTextValues,
+  seoTitleKey,
+  seoDescriptionKey,
+  seoPath,
 }: PracticeSelectorProps) {
   const { t, i18n } = useTranslation();
+
+  useDocumentHead(
+    seoTitleKey && seoDescriptionKey && seoPath
+      ? { title: t(seoTitleKey), description: t(seoDescriptionKey), path: seoPath }
+      : null,
+  );
   const navigate = useNavigate();
   const { activeProfile, dispatch } = useAppData();
   const [search, setSearch] = useState('');

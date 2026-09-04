@@ -2,12 +2,20 @@ import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Logo } from '@/components/Logo';
 import { GlobalTotalsPanel } from '@/components/GlobalTotalsPanel';
+import { DailyThought } from '@/components/DailyThought';
 import { useAppData } from '@/state/AppDataContext';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function HomePage() {
   const { t } = useTranslation();
   const { activeProfile } = useAppData();
   const hasProgress = activeProfile.lastActivePractice != null;
+
+  useDocumentHead({
+    title: t('seo.homeTitle'),
+    description: t('seo.homeDescription'),
+    path: '/',
+  });
 
   return (
     <div className="flex flex-col gap-10">
@@ -38,6 +46,8 @@ export function HomePage() {
           )}
         </div>
       </section>
+
+      <DailyThought />
 
       <GlobalTotalsPanel />
 

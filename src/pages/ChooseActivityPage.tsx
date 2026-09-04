@@ -1,8 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function ChooseActivityPage() {
   const { t } = useTranslation();
+
+  useDocumentHead({
+    title: t('seo.chooseTitle'),
+    description: t('seo.chooseDescription'),
+    path: '/choose',
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <div>

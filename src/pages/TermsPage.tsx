@@ -1,7 +1,15 @@
 import { Trans, useTranslation } from 'react-i18next';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function TermsPage() {
   const { t } = useTranslation();
+
+  useDocumentHead({
+    title: t('seo.termsTitle'),
+    description: t('seo.termsDescription'),
+    path: '/terms',
+  });
+
   return (
     <article className="flex max-w-2xl flex-col gap-4">
       <h1 className="font-display text-2xl font-semibold">{t('terms.title')}</h1>

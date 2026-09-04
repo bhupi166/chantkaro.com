@@ -12,6 +12,9 @@ export function LovingPartnerAffirmationsPage() {
       privacyTextKey="affirmationCommon.privacyText"
       options={LOVING_PARTNER_AFFIRMATIONS}
       contentNoteKey="lovingPartner.contentNote"
+      seoTitleKey="seo.lovingPartnerTitle"
+      seoDescriptionKey="seo.lovingPartnerDescription"
+      seoPath="/affirmation/loving-partner"
     />
   );
 }

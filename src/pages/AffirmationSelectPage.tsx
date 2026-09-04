@@ -11,6 +11,9 @@ export function AffirmationSelectPage() {
       customPlaceholderKey="affirmation.customPlaceholder"
       privacyTextKey="affirmationCommon.privacyText"
       options={AFFIRMATIONS}
+      seoTitleKey="seo.affirmationTitle"
+      seoDescriptionKey="seo.affirmationDescription"
+      seoPath="/affirmation"
     />
   );
 }

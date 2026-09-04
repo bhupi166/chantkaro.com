@@ -1,8 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 
 export function NotFoundPage() {
   const { t } = useTranslation();
+  const location = useLocation();
+
+  useDocumentHead({
+    title: `${t('notFound.heading')} — Chant Karo`,
+    description: t('seo.homeDescription'),
+    path: location.pathname,
+    noindex: true,
+  });
+
   return (
     <div className="flex flex-col items-center gap-4 py-16 text-center">
       <h1 className="font-display text-2xl font-semibold">{t('notFound.heading')}</h1>

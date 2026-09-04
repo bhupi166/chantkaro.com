@@ -14,6 +14,9 @@ export function ChantSelectPage() {
       featuredIds={FEATURED_CHANT_IDS}
       showTraditionFilter
       contentNoteKey="chant.contentNote"
+      seoTitleKey="seo.chantTitle"
+      seoDescriptionKey="seo.chantDescription"
+      seoPath="/chant"
     />
   );
 }

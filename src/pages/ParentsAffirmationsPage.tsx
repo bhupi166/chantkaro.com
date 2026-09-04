@@ -11,6 +11,9 @@ export function ParentsAffirmationsPage() {
       customPlaceholderKey="parents.customPlaceholder"
       privacyTextKey="affirmationCommon.privacyText"
       options={PARENTS_AFFIRMATIONS}
+      seoTitleKey="seo.parentsAffirmationsTitle"
+      seoDescriptionKey="seo.parentsAffirmationsDescription"
+      seoPath="/affirmation/parents"
     />
   );
 }

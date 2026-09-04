@@ -4,11 +4,19 @@ import { useAppData } from '@/state/AppDataContext';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { clearAppData, exportAppDataJson, importAppDataJson } from '@/lib/storage';
 import { supportsVibration } from '@/lib/vibration';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 import type { ThemePreference, UiLanguage } from '@/lib/types';
 
 export function SettingsPage() {
   const { t } = useTranslation();
   const { data, activeProfile, dispatch } = useAppData();
+
+  useDocumentHead({
+    title: `${t('settings.title')} — Chant Karo`,
+    description: t('seo.homeDescription'),
+    path: '/settings',
+    noindex: true,
+  });
   const [newProfileName, setNewProfileName] = useState('');
   const [clearOpen, setClearOpen] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);

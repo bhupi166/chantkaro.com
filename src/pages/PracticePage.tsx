@@ -9,6 +9,7 @@ import { TapCounterArea } from '@/components/TapCounterArea';
 import { VoiceCounterArea } from '@/components/VoiceCounterArea';
 import { TimerCounterArea } from '@/components/TimerCounterArea';
 import { TurnstileChallengeHost } from '@/components/TurnstileChallengeHost';
+import { useDocumentHead } from '@/hooks/useDocumentHead';
 import type { PracticeMode } from '@/lib/types';
 
 export function PracticePage() {
@@ -18,6 +19,13 @@ export function PracticePage() {
   const selection = activeProfile.lastActivePractice;
   const [mode, setMode] = useState<PracticeMode>(activeProfile.lastMode ?? 'tap');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useDocumentHead({
+    title: selection ? `${selection.displayText} — Chant Karo` : 'Practice — Chant Karo',
+    description: t('seo.homeDescription'),
+    path: '/practice',
+    noindex: true,
+  });
   const {
     toggle: toggleFullscreen,
     isFullscreen,
